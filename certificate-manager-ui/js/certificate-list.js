@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return `${cert.notvalidbefore} - ${cert.notvalidafter}`;
     }
 
+    // Render table with filtered data
     function renderTable(data) {
         const tbody = document.getElementById('certificates-body');
         if (tbody) {
@@ -82,6 +83,46 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Add search fields under the header
+    function renderColumnSearchFields() {
+        const searchRow = document.getElementById('column-search-row');
+        if (!searchRow) return;
+        searchRow.innerHTML = columns.map(col => `
+            <td>
+                <input 
+                    type="text" 
+                    class="column-search-input" 
+                    data-colkey="${col.key}" 
+                    placeholder="Search ${col.label}" 
+                    style="width: 95%; box-sizing: border-box;"
+                >
+            </td>
+        `).join('');
+    }
+
+    // Filtering logic for all columns
+    function getFilteredCertificates() {
+        const inputs = document.querySelectorAll('.column-search-input');
+        let filters = {};
+        inputs.forEach(input => {
+            const val = input.value.trim().toLowerCase();
+            if (val) filters[input.dataset.colkey] = val;
+        });
+
+        return certificates.filter(cert => {
+            return columns.every(col => {
+                const filterVal = filters[col.key];
+                if (!filterVal) return true;
+                let cellVal;
+                if (col.key === "validity") cellVal = getValidity(cert);
+                else if (col.key === "keyUsage") cellVal = getKeyUsage(cert);
+                else cellVal = cert[col.key];
+                return (cellVal || "").toString().toLowerCase().includes(filterVal);
+            });
+        });
+    }
+
+    // Sorting logic
     function sortByColumn(colKey) {
         let keyFn;
         if (colKey === "validity") keyFn = cert => cert.notvalidbefore;
@@ -96,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (valA > valB) return sortDirection[colKey] ? 1 : -1;
             return 0;
         });
-        renderTable(certificates);
+        renderTable(getFilteredCertificates());
     }
 
     // Add click listeners to table headers
@@ -109,7 +150,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    renderTable(certificates);
+    renderColumnSearchFields();
+    renderTable(getFilteredCertificates());
+
+    // Listen for input changes on all column search fields
+    document.getElementById('column-search-row').addEventListener('input', function(e) {
+        if (e.target.classList.contains('column-search-input')) {
+            renderTable(getFilteredCertificates());
+        }
+    });
 });
 
 

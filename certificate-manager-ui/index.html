@@ -18,17 +18,19 @@
     <ul id="certificate-list"></ul>
 
     <h2>Certificate Table (Prototype)</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Subject</th>
-                <th>Validity</th>
-                <th>Key Usage</th>
-                <th>Issuer</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="certificates-body"></tbody>
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Validity</th>
+          <th>Key Usage</th>
+          <th>Issuer</th>
+          <th>Status</th>
+        </tr>
+        <!-- Add this row for search fields -->
+        <tr id="column-search-row"></tr>
+      </thead>
+      <tbody id="certificates-body"></tbody>
     </table>
 </body>
 </html>
