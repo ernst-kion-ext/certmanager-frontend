@@ -2,49 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificate Manager</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Certmanager Codesign - Certificate List</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="js/certificate-list.js"></script>
 </head>
 <body>
-    <header>
-        <h1>Certificate Manager</h1>
-    </header>
-    <main>
-        <section id="certificate-list">
-            <h2>Certificate List</h2>
-            <input type="text" id="search" placeholder="Search by CN, issuer, etc.">
-            <table>
-                <thead>
-                    <tr>
-                        <th>CN</th>
-                        <th>Validity</th>
-                        <th>Key Usage</th>
-                        <th>Issuer</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="certificates-body">
-                    <!-- Certificate rows will be populated here -->
-                </tbody>
-            </table>
-        </section>
-        <section id="certificate-stats">
-            <h2>Certificate Statistics</h2>
-            <div id="stats-container">
-                <!-- Statistics will be displayed here -->
-            </div>
-        </section>
-        <section id="notifications">
-            <h2>Renewal Notifications</h2>
-            <div id="notification-container">
-                <!-- Notifications will be displayed here -->
-            </div>
-        </section>
-    </main>
-    <script src="js/app.js"></script>
-    <script src="js/certificate-list.js"></script>
-    <script src="js/certificate-stats.js"></script>
-    <script src="js/notification-manager.js"></script>
+    <h1>Certificate Manager</h1>
+
+    <div>
+        <label for="filter-input">Filter certificates:</label>
+        <input type="text" id="filter-input" placeholder="Type to filter...">
+    </div>
+
+    <h2>Certificate List</h2>
+    <ul id="certificate-list"></ul>
+
+    <h2>Certificate Table (Prototype)</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Validity</th>
+                <th>Key Usage</th>
+                <th>Issuer</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="certificates-body"></tbody>
+    </table>
 </body>
 </html>
