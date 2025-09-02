@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Certmanager Codesign - Certificate List</title>
-    <link rel="stylesheet" href="style.css">
-    <script type="module" src="js/certificate-list.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/getLocalCertificates.js"></script>
+    <script src="js/certificate-list.js"></script>
 </head>
 <body>
     <h1>Certificate Manager</h1>
 
     <div>
         <label for="filter-input">Filter certificates:</label>
-        <input type="text" id="filter-input" placeholder="Type to filter...">
+        <input type="text" id="filter-input" placeholder="Type to filter by subject or issuer...">
     </div>
 
-    <h2>Certificate List</h2>
-    <ul id="certificate-list"></ul>
-
-    <h2>Certificate Table (Prototype)</h2>
+    <h2>Certificate Table</h2>
     <table>
       <thead>
         <tr>
@@ -27,7 +25,6 @@
           <th>Issuer</th>
           <th>Status</th>
         </tr>
-        <!-- Add this row for search fields -->
         <tr id="column-search-row"></tr>
       </thead>
       <tbody id="certificates-body"></tbody>

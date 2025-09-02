@@ -1,4 +1,4 @@
-export function getLocalCertificates() {
+function getLocalCertificates() {
     return [
         {
             "fingerprint": "02:66:fd:a7:7a:77:a9:08:f7:4a:45:c7:43:1e:7a:45:15:75:bb:2a",
@@ -2177,5 +2177,3 @@ export function getLocalCertificates() {
         }
     ];
 }
-
-module.exports = getLocalCertificates;
