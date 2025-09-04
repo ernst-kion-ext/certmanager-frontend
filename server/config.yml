@@ -1,0 +1,9 @@
+# configurable variables
+output_dir: . # directory, where cert and private key are stored. no trailing slash!
+# non-configurable variables, these should not be changed
+prod:
+  vault_addr: "https://vault.kiongroup.com:8200/"
+  pki_mount: "sw_sign_pki"
+uat:
+  vault_addr: "https://vault-uat.kiongroup.com:8200/"
+  pki_mount: "sw_sign_pki"
