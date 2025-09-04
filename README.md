@@ -4,6 +4,16 @@
 The Certificate Manager UI is a web application designed to visualize and manage certificate data. It provides functionalities to list certificates, view their statuses, set up renewal notifications, and display statistics related to certificate issuance and revocation.
 
 
+## Frontend
+
+This is a frontend website written in HTML, CSS and vanilla Javscript without any external libraries or frameworks.
+Run the Backend in the same repository and then open the `index.html`. 
+
+
+## TODO
+
+Have to make a server choice option in the frontend
+
 
 ## Backend
 

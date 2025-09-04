@@ -1,6 +1,7 @@
-// No imports. Works with file:// when index.html includes getLocalCertificates.js first.
-document.addEventListener('DOMContentLoaded', function () {
-    const certificates = typeof getLocalCertificates === 'function' ? getLocalCertificates() : [];
+// No imports. Works with file:// when index.html includes loadCertificates.js first.
+document.addEventListener('DOMContentLoaded', async function () {
+    //const certificates = typeof getLocalCertificates === 'function' ? getLocalCertificates() : [];
+    const certificates = typeof getServerCertificates === 'function' ? await getServerCertificates() : [];
     const filterInput = document.getElementById('filter-input');
     const columns = [
         { key: "subject", label: "Subject" },
