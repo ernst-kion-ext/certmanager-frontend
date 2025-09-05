@@ -7,3 +7,6 @@ prod:
 uat:
   vault_addr: "https://vault-uat.kiongroup.com:8200/"
   pki_mount: "sw_sign_pki"
+localhost:
+  vault_addr: "http://localhost:8200/"
+  pki_mount: "sw_sign_pki"

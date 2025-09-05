@@ -1,4 +1,5 @@
 function getServerCertificates() {
+    console.log("in getServerCertificates")
     return fetch('http://localhost:8000/')
         .then(response => {
             if (!response.ok) {

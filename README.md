@@ -10,9 +10,11 @@ This is a frontend website written in HTML, CSS and vanilla Javscript without an
 Run the Backend in the same repository and then open the `index.html`. 
 
 
-## TODO
+### TODO
 
-Have to make a server choice option in the frontend
+- Have to make a server choice option in the frontend
+- fetchCertificates() should have a configurable server option
+- add statistics bars
 
 
 ## Backend
@@ -43,3 +45,8 @@ The backend is implemented in Python and provides both CLI and HTTP server inter
 
 - Hashicorp Vault (remote API)
 - Python packages: See config.yml
+
+## Todo
+
+- backend should at least ask for a token/api key for frontend requests
+- remove self.send_header('Access-Control-Allow-Origin', '*')

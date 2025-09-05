@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function fetchCertificates() {
+    console.log("in fetchCertificates()")
     fetch('http://localhost:8000/')
         .then(response => response.json())
         .then(data => {
