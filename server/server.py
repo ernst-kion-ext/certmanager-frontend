@@ -79,7 +79,7 @@ if __name__ == "__main__":
   
   parser.add_argument("-t", "--token", type=str, help='Vault Token for authentication. In the format of hvs.CAESIHbIrw4rlu9KHPyYsh5LDeQyQe8kSWLnUrj_AZVbK_9sGh4KHGh2cy5CQ0hPUVpqb0pjb0RIVFFNWllvNEx0N2c It also can be supplied via the environment variable VAULTTOKEN. If not supplied it will be asked interactively')
   parser.add_argument("-f", "--filetoken", type=str, help='Path to the file which contains the vault token')
-  parser.add_argument("-e", "--environment", type=str, choices={"prod", "uat", "ernst"}, default="prod", help="Vault environment to use (default: '%(default)s')")
+  parser.add_argument("-e", "--environment", type=str, choices={"prod", "uat", "localhost"}, default="prod", help="Vault environment to use (default: '%(default)s')")
   args = parser.parse_args()
 
   log_print("Start certmanager", TYPE_INFO)

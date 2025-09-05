@@ -4,9 +4,11 @@ output_dir: . # directory, where cert and private key are stored. no trailing sl
 prod:
   vault_addr: "https://vault.kiongroup.com:8200/"
   pki_mount: "sw_sign_pki"
+  hostname: "e2r2s01iapp0033"
 uat:
   vault_addr: "https://vault-uat.kiongroup.com:8200/"
   pki_mount: "sw_sign_pki"
+  hostname: "e2r2s01iapp0032"
 localhost:
   vault_addr: "http://localhost:8200/"
   pki_mount: "sw_sign_pki"
