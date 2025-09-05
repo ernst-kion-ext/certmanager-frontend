@@ -1,20 +1,18 @@
-function getServerCertificates() {
-    console.log("in getServerCertificates")
-    return fetch('http://localhost:8000/')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+async function getServerCertificates(apiKey) {
+    const url = document.getElementById('server-select').value
+    if (!url) return [];
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'X-Vault-Token': apiKey
             }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Fetched certificates from server:', data);
-            return data;
-        })
-        .catch(error => {
-            console.error('Error fetching certificates from server:', error);
-            throw error;
         });
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching certificates:', error);
+        return [];
+    }
 }
 
 function getLocalCertificates() {

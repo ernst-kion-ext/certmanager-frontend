@@ -11,6 +11,7 @@ Run the Backend in the same repository and then open the `index.html`.
 ### TODO
 
 - Have to make a server choice option in the frontend
+- Should the Vaulttoken be given through the frontend or use an API key instead?
 - fetchCertificates() should have a configurable server option
 - add statistics bars
 

@@ -1,19 +1,17 @@
-// filepath: /certificate-manager-ui/certificate-manager-ui/js/app.js
-document.addEventListener('DOMContentLoaded', function() {
-    fetchCertificates();
-});
-
-function fetchCertificates() {
-    console.log("in fetchCertificates()")
-    fetch('http://localhost:8000/')
-        .then(response => response.json())
-        .then(data => {
-            displayCertificates(data);
-            displayStatistics(data);
-            setupNotifications(data);
-        })
-        .catch(error => console.error('Error fetching certificates:', error));
+async function fetchCertificates() {
+    const apiKey = document.getElementById('api-key-input').value;
+    const certificates = await getServerCertificates(apiKey);
+    displayCertificates(certificates);
+    displayStatistics(certificates);
+    setupNotifications(certificates);
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('fetch-certificates-btn');
+    if (btn) {
+        btn.addEventListener('click', fetchCertificates);
+    }
+});
 
 function displayCertificates(certificates) {
     const certificateList = document.getElementById('certificate-list');
