@@ -1,27 +1,13 @@
 async function fetchCertificates() {
-    const apiKey = document.getElementById('api-key-input').value;
-    const certificates = await getServerCertificates(apiKey);
-    displayCertificates(certificates);
-    displayStatistics(certificates);
-    setupNotifications(certificates);
-}
+    const certificates = await getServerCertificates();
+    window.certificates = certificates;
+    // TODO currently disabled until implemented
+    // displayStatistics(certificates);
 
-document.addEventListener('DOMContentLoaded', function () {
-    const btn = document.getElementById('fetch-certificates-btn');
-    if (btn) {
-        btn.addEventListener('click', fetchCertificates);
+    // Trigger table re-render using the certificate-list.js logic:
+    if (typeof renderTable === "function" && typeof getFilteredCertificates === "function") {
+        renderTable(getFilteredCertificates());
     }
-});
-
-function displayCertificates(certificates) {
-    const certificateList = document.getElementById('certificate-list');
-    certificateList.innerHTML = '';
-
-    certificates.forEach(cert => {
-        const listItem = document.createElement('li');
-        listItem.textContent = `CN: ${cert.cn}, Validity: ${cert.validity}, Key Usage: ${cert.keyUsage}, Issuer: ${cert.issuer}`;
-        certificateList.appendChild(listItem);
-    });
 }
 
 function displayStatistics(certificates) {
@@ -43,12 +29,4 @@ function calculateStatistics(certificates) {
     });
 
     return { issued, revoked };
-}
-
-function setupNotifications(certificates) {
-    certificates.forEach(cert => {
-        if (cert.status === 'about-to-expire') {
-            alert(`Certificate ${cert.cn} is about to expire!`);
-        }
-    });
 }

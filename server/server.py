@@ -22,55 +22,92 @@ def getCertificate(certificateName):
 
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-
-    def parse_certamount_parameter(self):
-        from urllib.parse import urlparse, parse_qs
-        query = urlparse(self.path).query
-        params = parse_qs(query)
-        self.certamount = None
-        if "certamount" in params:
+    def isValidApikey(self, client_apikey):
+        apikey_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "apikey")
+        with open(apikey_path) as f:
             try:
-                self.certamount = int(params["certamount"][0])
-            except Exception:
-                self.certamount = None
-                log_print("Invalid certamount parameter", TYPE_ERROR)
+                backend_apikey = str(f.read().rstrip())
+                if backend_apikey != client_apikey:
+                    log_print("client_apikey: {0}".format(client_apikey))
+                    log_print("backend_apikey: {0}".format(backend_apikey))
+                    log_print("Provided API key does not match the expected API key", TYPE_ERROR)
+                    return False
+                return True
+            except Exception as exc:
+                log_print("Error reading file {0}. See following exception for details".format(apikey_path), TYPE_ERROR)
+                print(exc)
+                return False
+
+    def get_apikey_header(self):
+        api_key_header = self.headers.get('apikey')
+        if api_key_header:
+            return api_key_header
+        else:
+            log_print("No apikey header provided", TYPE_INFO)
+            return None
+
+    def get_certamount_header(self):
+        certamount_header = self.headers.get('certamount')
+        if certamount_header:
+            try:
+                return int(certamount_header)
+            except ValueError:
+                log_print("Invalid certamount header", TYPE_ERROR)
+                return None
+        return None
 
     def do_GET(self):
-        log_print(self.path, TYPE_INFO)
-        if self.path.startswith('/'):
-            # fill self.certamount if it is supplied in the path
-            self.parse_certamount_parameter()
+      log_print(self.path, TYPE_INFO)
+      if self.path.startswith('/'):
+        
+        # supplies apikey via client request
+        client_apikey = self.get_apikey_header()
 
-            getList = getJSONData(
-                "GET",
-                "{0}v1/{1}/certs/?list=true".format(configuration["vault_addr"], configuration["pki_mount"]),
-                "data.keys",
-                None,
-                {"X-Vault-Token": vaulttoken}
-            )
+        if not self.isValidApikey(client_apikey):
+          self.send_response(403)
+          self.end_headers()
+          self.wfile.write(b'Forbidden: Invalid API key')
 
-            log_print(getList, TYPE_INFO)
-            log_print("Returned {0} certificates".format(len(getList)), TYPE_INFO)
+        getList = getJSONData(
+            "GET",
+            "{0}v1/{1}/certs/?list=true".format(configuration["vault_addr"], configuration["pki_mount"]),
+            "data.keys",
+            None,
+            {"X-Vault-Token": vaulttoken}
+        )
 
-            allCerts = []
-            currentLoop = 0
+        log_print(getList, TYPE_INFO)
+        log_print("Returned {0} certificates".format(len(getList)), TYPE_INFO)
 
-            for certificate_fingerprint in getList:
-                currentLoop += 1
-                # If no certamount is supplied via commandline, return all certificates
-                # else use the number supplied
-                # probably only useful for debugging
-                if not self.certamount or currentLoop <= self.certamount:
-                    certificate = getCertificate(certificate_fingerprint)
-                    certificateDetails = getCertificateDetails(certificate)
-                    allCerts.append(certificateDetails)
+        max_requested_certificates = self.get_certamount_header()
+        allCerts = []
+        currentLoop = 0
 
-            self.send_response(200)
-            self.send_header('Content-type', 'text/json')
-            # TODO: for debugging, should be removed or specified
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            self.wfile.write(json.dumps(allCerts).encode('utf-8'))
+        for certificate_fingerprint in getList:
+            currentLoop += 1
+            # If no certamount is supplied, return all certificates
+            # else use the number supplied
+            # probably only useful for debugging
+            if not max_requested_certificates or currentLoop <= max_requested_certificates:
+                certificate = getCertificate(certificate_fingerprint)
+                certificateDetails = getCertificateDetails(certificate)
+                allCerts.append(certificateDetails)
+
+        self.send_response(200)
+        self.send_header('Content-type', 'text/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(allCerts).encode('utf-8'))
+            
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.end_headers()
+
+    def end_headers(self):
+        # TODO: for debugging, should be removed or specified
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'apikey, certamount, Content-Type')
+        super().end_headers()    
 
 
 if __name__ == "__main__":
