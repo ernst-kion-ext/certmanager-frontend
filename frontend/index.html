@@ -23,18 +23,17 @@
     <div>
         <label for="api-key-input">API Key:</label>
         <input type="text" id="api-key-input" placeholder="Enter API key for certmanager ui server">
-        <label for="certamount-input" style="margin-left:10px;">Max certificates:</label>
-        <input type="number" id="certamount-input" min="1" style="width:80px;" placeholder="All">
+        <label for="certamount-input" class="certamount-label">Max certificates:</label>
+        <input type="number" id="certamount-input" min="1" class="certamount-input" placeholder="All">
         <button id="fetch-certificates-btn" onclick="fetchCertificates()">Submit</button>
     </div>
 
     <h2>Certificate Table</h2>
-    <div style="margin-bottom: 10px;">
+    <div class="filter-input-container">
         <input
             type="text"
             id="filter-input"
             placeholder="Search all fields"
-            style="width: 50%; padding: 4px;"
         >
     </div>
     <table>
