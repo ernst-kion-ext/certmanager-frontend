@@ -1,0 +1,78 @@
+/* Certificate table and filter styles */
+
+.filter-input-container {
+  margin-bottom: 10px;
+}
+
+#filter-input {
+  width: 320px;
+  padding: 10px;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  margin-right: 10px;
+  font-size: 1em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  margin-bottom: 24px;
+  font-size: 1em;
+}
+
+th, td {
+  border: 1px solid #222;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 1em;
+}
+
+th {
+  background: #f7f7f7;
+  font-weight: bold;
+}
+
+tr#column-search-row th,
+tr#column-search-row td {
+  background: #fff;
+  border: none;
+  padding: 0;
+}
+
+tbody tr:hover {
+  background: #f0f8ff;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+.pagination-btn {
+  background: #f7f7f7;
+  border: 1px solid #bbb;
+  color: #222;
+  padding: 6px 18px;
+  border-radius: 6px;
+  margin: 0 2px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.pagination-btn.active, .pagination-btn:focus {
+  background: #00b386;
+  color: #fff;
+  border-color: #00b386;
+}
+
+.pagination-btn:disabled {
+  color: #bbb;
+  border: 1px solid #eee;
+  background: #f7f7f7;
+  cursor: default;
+}
