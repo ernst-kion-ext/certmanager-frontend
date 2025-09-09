@@ -39,9 +39,7 @@ How to use:
 - [ ] Add links to the vault url on the data
 - [ ] Implement pagination for certificate lists
 - [ ] change some column filter into checkboxes/datepicker
-- [ ] show public key same as signature
 - [ ] Remove signature modal functionality
-- [ ] Add Subject Key Identifier
 
 
 ## Backend

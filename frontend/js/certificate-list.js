@@ -76,6 +76,7 @@ const columns = [
     { key: "signaturehashalgorithm", label: "Signature Hash Algorithm" },
     { key: "publickey_type", label: "Public Key Type" },
     { key: "publickey_size", label: "Public Key Size" },
+    { key: "subjectKeyIdentifier", label: "Subject Key Identifier" },
     { key: "publickey", label: "Public Key" },
     { key: "signature", label: "Signature" }
 ];
@@ -121,17 +122,18 @@ function renderTable(data) {
             const rowClass = (cert.status !== "valid") ? 'row-not-valid' : '';
             return `
             <tr class="${rowClass}">
-                <td>${cert.subject || cert.cn || ''}</td>
-                <td>${cert.notvalidbefore || ''}</td>
-                <td>${cert.notvalidafter || ''}</td>
+                <td>${cert.subject || cert.cn}</td>
+                <td>${cert.notvalidbefore}</td>
+                <td>${cert.notvalidafter}</td>
                 <td>${cert.daysleft}</td>
                 <td>${getKeyUsage(cert)}</td>
-                <td>${cert.issuer || ''}</td>
-                <td>${cert.status || ''}</td>
-                <td>${cert.fingerprint || ''}</td>
-                <td>${cert.signaturehashalgorithm || ''}</td>
-                <td>${cert.publickey?.type || ''}</td>
-                <td>${cert.publickey?.size || cert.publickey?.key_size || ''}</td>
+                <td>${cert.issuer}</td>
+                <td>${cert.status}</td>
+                <td>${cert.fingerprint}</td>
+                <td>${cert.signaturehashalgorithm}</td>
+                <td>${cert.publickey?.type}</td>
+                <td>${cert.publickey?.size || cert.publickey?.key_size}</td>
+                <td>${cert.extensions?.subjectKeyIdentifier}</td>
                 <td>
                     <button class="show-publickey-btn" data-publickey="${encodeURIComponent(JSON.stringify(cert.publickey.pem))}">Show Pem</button>
                     <button class="show-publickey-btn" data-publickey="${encodeURIComponent(JSON.stringify(cert.publickey.ssh))}">Show SSH</button>
@@ -170,23 +172,26 @@ function getFilteredCertificates() {
 
     let filtered = certificates.filter(cert => {
         return columns.every(col => {
-            const filterVal = filters[col.key];
-            if (!filterVal) return true;
-            let cellVal;
-            switch (col.key) {
-                case "keyUsage":
-                    cellVal = getKeyUsage(cert);
-                    break;
-                case "publickey_type":
-                    cellVal = cert.publickey?.type;
-                    break;
-                case "publickey_size":
-                    cellVal = cert.publickey?.key_size;
-                    break;
-                default:
-                    cellVal = cert[col.key];
+            if (!filters[col.key]) return true;
+            let value;
+            if (col.key === "subjectKeyIdentifier") {
+                value = cert.extensions?.subjectKeyIdentifier;
+            } else if (col.key === "keyUsage") {
+                value = getKeyUsage(cert);
+            } else if (col.key === "publickey_type") {
+                value = cert.publickey?.type;
+            } else if (col.key === "publickey_size") {
+                value = cert.publickey?.size || cert.publickey?.key_size;
+            } else if (col.key === "publickey") {
+                // Search both PEM and SSH values
+                value = [
+                    cert.publickey?.pem,
+                    cert.publickey?.ssh
+                ].join(" ");
+            } else {
+                value = cert[col.key];
             }
-            return (cellVal || "").toString().toLowerCase().includes(filterVal);
+            return (value).toString().toLowerCase().includes(filters[col.key]);
         });
     });
 
@@ -198,7 +203,7 @@ function getFilteredCertificates() {
             Object.values(cert).some(val =>
                 (typeof val === "object")
                     ? JSON.stringify(val).toLowerCase().includes(q)
-                    : (val || '').toString().toLowerCase().includes(q)
+                    : (val).toString().toLowerCase().includes(q)
             )
         );
     }
