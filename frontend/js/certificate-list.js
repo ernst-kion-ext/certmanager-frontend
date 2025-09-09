@@ -75,7 +75,8 @@ const columns = [
     { key: "fingerprint", label: "Fingerprint" },
     { key: "signaturehashalgorithm", label: "Signature Hash Algorithm" },
     { key: "publickey_type", label: "Public Key Type" },
-    { key: "publickey_size", label: "Key Size" },
+    { key: "publickey_size", label: "Public Key Size" },
+    { key: "publickey", label: "Public Key" },
     { key: "signature", label: "Signature" }
 ];
 
@@ -131,6 +132,10 @@ function renderTable(data) {
                 <td>${cert.signaturehashalgorithm || ''}</td>
                 <td>${cert.publickey?.type || ''}</td>
                 <td>${cert.publickey?.size || cert.publickey?.key_size || ''}</td>
+                <td>
+                    <button class="show-publickey-btn" data-publickey="${encodeURIComponent(JSON.stringify(cert.publickey.pem))}">Show Pem</button>
+                    <button class="show-publickey-btn" data-publickey="${encodeURIComponent(JSON.stringify(cert.publickey.ssh))}">Show SSH</button>
+                </td>
                 <td>
                     <button class="show-signature-btn" data-signature="${cert.signature}" style="padding:2px 8px;">Show</button>
                 </td>

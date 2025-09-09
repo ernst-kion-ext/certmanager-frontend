@@ -62,6 +62,7 @@
           <th>Signature Hash Algorithm</th>
           <th>Public Key Type</th>
           <th>Public Key Size</th>
+          <th>Public Key</th>
           <th>Signature</th>
         </tr>
         <tr id="column-search-row"></tr>
@@ -98,7 +99,19 @@
         <button id="signature-modal-copy" onclick="copySignatureToClipboard()">Copy to Clipboard</button>
       </div>
     </div>
+  </div>
 
+  <!-- Public Key Modal -->
+  <div id="publickey-modal" onclick="closePublicKeyModalOnOutsideClick(event)">
+    <div id="publickey-modal-content">
+      <button id="publickey-modal-close" onclick="hidePublicKeyModal()">&times;</button>
+      <h3>Certificate Public Key</h3>
+      <pre id="publickey-modal-text"></pre>
+      <div id="publickey-modal-actions">
+        <button id="publickey-modal-copy" onclick="copyPublicKeyToClipboard()">Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
