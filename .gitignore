@@ -1,3 +1,4 @@
 server/vaulttoken
 server/apikey
 server/__pycache__
+exampleCertificate.json

@@ -40,6 +40,9 @@ How to use:
 - [ ] Implement pagination for certificate lists
 - [ ] Fix signature buttons
 - [ ] change some column filter into checkboxes/datepicker
+- [ ] show public key same as signature
+- [ ] Remove signature modal functionality
+- [ ] Add Subject Key Identifier
 
 
 ## Backend
