@@ -113,9 +113,13 @@ function getKeyUsage(cert) {
 
 function renderTable(data) {
     const tbody = document.getElementById('certificates-body');
+
     if (tbody) {
-        tbody.innerHTML = data.map((cert) => `
-            <tr>
+        tbody.innerHTML = data.map((cert) => {
+            // Row class for non-valid certificates (expired or revoked)
+            const rowClass = (cert.status !== "valid") ? 'row-not-valid' : '';
+            return `
+            <tr class="${rowClass}">
                 <td>${cert.subject || cert.cn || ''}</td>
                 <td>${cert.notvalidbefore || ''}</td>
                 <td>${cert.notvalidafter || ''}</td>
@@ -131,7 +135,7 @@ function renderTable(data) {
                     <button class="show-signature-btn" data-signature="${cert.signature}" style="padding:2px 8px;">Show</button>
                 </td>
             </tr>
-        `).join('');
+        `}).join('');
     }
 }
 
