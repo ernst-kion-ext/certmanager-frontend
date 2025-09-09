@@ -1,12 +1,23 @@
 async function fetchCertificates() {
-    const certificates = await getServerCertificates();
-    window.certificates = certificates;
-    // TODO currently disabled until implemented
-    // displayStatistics(certificates);
+    const btn = document.getElementById('fetch-certificates-btn');
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = "Loading...";
 
-    // Trigger table re-render using the certificate-list.js logic:
-    if (typeof renderTable === "function" && typeof getFilteredCertificates === "function") {
-        renderTable(getFilteredCertificates());
+    try {
+        const certificates = await getServerCertificates();
+        window.certificates = certificates;
+        // Disabled until implementation is complete
+        // displayStatistics(certificates);
+        if (typeof renderTable === "function" && typeof getFilteredCertificates === "function") {
+            renderTable(getFilteredCertificates());
+        }
+    } catch (error) {
+        // Optionally show error to user
+        console.error(error);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
     }
 }
 

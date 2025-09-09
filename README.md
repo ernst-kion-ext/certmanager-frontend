@@ -35,6 +35,11 @@ How to use:
 - [ ] Add statistics bars according to UI sketch.
 - [ ] Improve error handling and user feedback.
 - [ ] Optionally support Vault token input
+- [ ] Remove field for limiting the certificates
+- [ ] Add pagination for large certificate lists
+- [ ] Implement loading indicators for async actions
+- [ ] Prettify frontend design
+
 
 ## Backend
 
