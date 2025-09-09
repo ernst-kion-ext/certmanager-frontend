@@ -7,16 +7,28 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (th) {
             th.style.cursor = "pointer";
             th.title = "Click to sort";
-            th.addEventListener('click', () => sortByColumn(col.key));
+            th.addEventListener('click', () => {
+                // Toggle sort direction if same column, else default to ascending
+                if (currentSort.colKey === col.key) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.colKey = col.key;
+                    currentSort.direction = 'asc';
+                }
+                sortByColumn(col.key, currentSort.direction);
+                updateSortIndicators();
+            });
         }
     });
 
     renderColumnSearchFields();
     renderTable(getFilteredCertificates());
+    updateSortIndicators();
 
     document.getElementById('column-search-row').addEventListener('input', function (e) {
         if (e.target.classList.contains('column-search-input')) {
             renderTable(getFilteredCertificates());
+            updateSortIndicators();
         }
     });
 
@@ -24,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (filterInput) {
         filterInput.addEventListener('input', function () {
             renderTable(getFilteredCertificates());
+            updateSortIndicators();
         });
     }
 
@@ -65,6 +78,8 @@ const columns = [
     { key: "publickey_size", label: "Key Size" },
     { key: "signature", label: "Signature" }
 ];
+
+let currentSort = { colKey: null, direction: 'asc' }; // Track current sort column and direction
 
 async function fetchCertificates() {
     const btn = document.getElementById('fetch-certificates-btn');
@@ -182,7 +197,18 @@ function getFilteredCertificates() {
     return filtered;
 }
 
-function sortByColumn(colKey) {
+function updateSortIndicators() {
+    const ths = document.querySelectorAll('thead th');
+    ths.forEach((th, idx) => {
+        // Remove any existing arrow
+        th.innerHTML = columns[idx].label;
+        if (columns[idx].key === currentSort.colKey) {
+            th.innerHTML += currentSort.direction === 'asc' ? ' &#9650;' : ' &#9660;';
+        }
+    });
+}
+
+function sortByColumn(colKey, direction = 'asc') {
     let keyFn;
     switch (colKey) {
         case "keyUsage":
@@ -201,8 +227,8 @@ function sortByColumn(colKey) {
     certificates.sort((a, b) => {
         let valA = keyFn(a) || "";
         let valB = keyFn(b) || "";
-        if (valA < valB) return -1;
-        if (valA > valB) return 1;
+        if (valA < valB) return direction === 'asc' ? -1 : 1;
+        if (valA > valB) return direction === 'asc' ? 1 : -1;
         return 0;
     });
     renderTable(getFilteredCertificates());
