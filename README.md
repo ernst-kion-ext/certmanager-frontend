@@ -32,11 +32,17 @@ How to use:
 
 ### TODO
 
-- [ ] Add statistics bars according to UI sketch.
 - [ ] Improve error handling and user feedback.
 - [ ] Optionally support Vault token input
 - [ ] Remove field for limiting the certificates
 - [ ] Implement loading indicators for async actions
+- [ ] Add links to the vault url on the data
+- [ ] Daysleft is giving an absolute value, but it should show a negative value when it's expired
+- [ ] Implement pagination for certificate lists
+- [ ] Fix sorting into both directions with an arrow
+- [ ] Fix signature buttons
+- [ ] Implement column resizing
+- [ ] change some column filter into checkboxes/datepicker
 
 
 ## Backend

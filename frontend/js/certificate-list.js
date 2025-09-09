@@ -26,6 +26,29 @@ document.addEventListener('DOMContentLoaded', async function () {
             renderTable(getFilteredCertificates());
         });
     }
+
+    // Sidebar view switching logic
+    const certificatesBtn = document.getElementById('certificates-btn');
+    const statisticsBtn = document.getElementById('statistics-btn');
+    const certificatesView = document.getElementById('certificates-view');
+    const statisticsView = document.getElementById('statistics-view');
+
+    if (certificatesBtn && statisticsBtn && certificatesView && statisticsView) {
+        certificatesBtn.addEventListener('click', function() {
+            certificatesView.style.display = 'block';
+            statisticsView.style.display = 'none';
+            certificatesBtn.classList.add('active');
+            statisticsBtn.classList.remove('active');
+        });
+
+        statisticsBtn.addEventListener('click', function() {
+            certificatesView.style.display = 'none';
+            statisticsView.style.display = 'block';
+            certificatesBtn.classList.remove('active');
+            statisticsBtn.classList.add('active');
+            updateStatistics();
+        });
+    }
 });
 
 const columns = [
@@ -51,9 +74,8 @@ async function fetchCertificates() {
 
     try {
         const certificates = await getServerCertificates();
+        processCertificateStatuses(certificates); // <-- Process statuses here
         window.certificates = certificates;
-        // Disabled until implementation is complete
-        // displayStatistics(certificates);
         renderTable(getFilteredCertificates());
     } catch (error) {
         console.error(error);
@@ -186,3 +208,26 @@ function sortByColumn(colKey) {
     renderTable(getFilteredCertificates());
 }
 
+/**
+ * Processes all certificates and sets the "status" field to:
+ * - "expired" if notAfter is in the past and not revoked
+ * - "revoked" if cert.status is already "revoked"
+ * - "valid" otherwise
+ * Call this function after fetching certificates.
+ */
+function processCertificateStatuses(certificates) {
+    const now = new Date();
+    certificates.forEach(cert => {
+        if (cert.status && cert.status.toLowerCase() === "revoked") {
+            cert.status = "revoked";
+        } else {
+            let notAfter = cert.notAfter || cert.notvalidafter;
+            let notAfterDate = notAfter ? new Date(notAfter) : null;
+            if (notAfterDate && notAfterDate < now) {
+                cert.status = "expired";
+            } else {
+                cert.status = "valid";
+            }
+        }
+    });
+}

@@ -42,4 +42,67 @@ function calculateStatistics(certificates) {
     return { issued, revoked };
 }
 
-export default certificateStats;
+function updateStatistics() {
+    const certificates = window.certificates || [];
+
+    let totalCount = certificates.length;
+    let validCount = certificates.filter(cert =>
+        cert.status === 'valid'
+    ).length;
+    let revokedCount = certificates.filter(cert =>
+        cert.status === 'revoked'
+    ).length;
+    let expiredCount = certificates.filter(cert =>
+        cert.status === 'expired'
+    ).length;
+
+    document.getElementById('total-certificates').textContent = totalCount;
+    document.getElementById('valid-certificates').textContent = validCount;
+    document.getElementById('revoked-certificates').textContent = revokedCount;
+    document.getElementById('expired-certificates').textContent = expiredCount;
+
+    drawSimpleBarChart([
+        { label: 'Total', value: totalCount, color: '#3692eb' },
+        { label: 'Valid', value: validCount, color: '#4bc0c0' },
+        { label: 'Revoked', value: revokedCount, color: '#ff6384' },
+        { label: 'Expired', value: expiredCount, color: '#ff9f40' }
+    ]);
+}
+
+function drawSimpleBarChart(data) {
+    const container = document.getElementById('simple-bar-chart');
+    container.innerHTML = '';
+
+    const max = Math.max(...data.map(d => d.value), 1);
+
+    // 60% of viewport height for the tallest bar
+    const maxBarHeight = Math.floor(window.innerHeight * 0.6);
+
+    const chartWrapper = document.createElement('div');
+    chartWrapper.className = 'vertical-bar-chart-wrapper';
+
+    data.forEach(item => {
+        const barCol = document.createElement('div');
+        barCol.className = 'vertical-bar-col';
+
+        const bar = document.createElement('div');
+        bar.className = 'vertical-bar';
+        bar.style.height = (item.value / max * maxBarHeight) + 'px';
+        bar.style.background = item.color;
+
+        const value = document.createElement('div');
+        value.className = 'vertical-bar-value';
+        value.textContent = item.value;
+
+        const label = document.createElement('div');
+        label.className = 'vertical-bar-label';
+        label.textContent = item.label;
+
+        barCol.appendChild(value);
+        barCol.appendChild(bar);
+        barCol.appendChild(label);
+        chartWrapper.appendChild(barCol);
+    });
+
+    container.appendChild(chartWrapper);
+}
