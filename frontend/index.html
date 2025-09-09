@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/loadCertificates.js"></script>
     <script src="js/certificate-list.js"></script>
+    <script src="js/modal.js"></script>
     <script src="js/app.js"></script>
 </head>
 <body>
@@ -60,12 +61,15 @@
     </table>
 
     <!-- Signature Modal -->
-    <div id="signature-modal">
+    <div id="signature-modal" onclick="closeModalOnOutsideClick(event)">
       <div id="signature-modal-content">
-        <button id="signature-modal-close">&times;</button>
+        <button id="signature-modal-close" onclick="hideSignatureModal()">&times;</button>
         <h3>Certificate Signature</h3>
         <pre id="signature-modal-text"></pre>
-        <button id="signature-modal-copy">Copy to Clipboard</button>
+        <button id="signature-modal-copy" onclick="copySignatureToClipboard()">Copy to Clipboard</button>
+        <button id="signature-modal-decode" onclick="decodeBase64Signature()">Decode Base64</button>
+        <button id="signature-modal-hex" onclick="showSignatureAsHex()">Show as Hex</button>
+        <button id="signature-modal-original" onclick="showOriginalSignature()">Show Original</button>
         <span id="signature-modal-copied">Copied!</span>
       </div>
     </div>

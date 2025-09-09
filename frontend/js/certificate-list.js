@@ -167,49 +167,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // Modal logic
-    function showSignatureModal(signature) {
-        const modal = document.getElementById('signature-modal');
-        const text = document.getElementById('signature-modal-text');
-        const copied = document.getElementById('signature-modal-copied');
-        text.textContent = signature;
-        copied.style.display = 'none';
-        modal.style.display = 'flex';
-        // Focus the copy button for accessibility
-        document.getElementById('signature-modal-copy').focus();
-    }
-
-    function hideSignatureModal() {
-        document.getElementById('signature-modal').style.display = 'none';
-    }
-
-    // Event delegation for show buttons
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('show-signature-btn')) {
-            const signature = decodeURIComponent(e.target.getAttribute('data-signature'));
-            showSignatureModal(signature);
-        }
-    });
-
-    // Copy to clipboard
-    document.getElementById('signature-modal-copy').onclick = function() {
-        const text = document.getElementById('signature-modal-text').textContent;
-        navigator.clipboard.writeText(text).then(() => {
-            document.getElementById('signature-modal-copied').style.display = 'inline';
-            setTimeout(() => {
-                document.getElementById('signature-modal-copied').style.display = 'none';
-            }, 1500);
-        });
-    };
-
-    // Close modal with X button
-    document.getElementById('signature-modal-close').onclick = hideSignatureModal;
-
-    // Close modal when clicking outside the modal content
-    document.getElementById('signature-modal').onclick = function(e) {
-        if (e.target === this) hideSignatureModal();
-    };
-
     window.renderTable = renderTable;
     window.getFilteredCertificates = getFilteredCertificates;
 });
