@@ -2,11 +2,9 @@
 function showSignatureModal(signature) {
     const modal = document.getElementById('signature-modal');
     const text = document.getElementById('signature-modal-text');
-    const copied = document.getElementById('signature-modal-copied');
     text.textContent = signature;
     // Store original in a data attribute
     text.dataset.original = signature; 
-    copied.style.display = 'none';
     modal.style.display = 'flex';
     document.getElementById('signature-modal-copy').focus();
 }
@@ -20,7 +18,7 @@ function hideSignatureModal() {
 function decodeBase64Signature() {
     const textElem = document.getElementById('signature-modal-text');
     try {
-        const b64 = textElem.textContent.replace(/\s+/g, '');
+        const b64 = textElem.dataset.original.replace(/\s+/g, '');
         const decoded = atob(b64);
         textElem.textContent = decoded;
     } catch (e) {
@@ -28,21 +26,20 @@ function decodeBase64Signature() {
     }
 }
 
-// Decode base64 and show as hex
+// Show as hex
 function showSignatureAsHex() {
     const textElem = document.getElementById('signature-modal-text');
     try {
-        const b64 = textElem.textContent.replace(/\s+/g, '');
-        const binary = atob(b64);
         let hex = '';
+        const binary = atob(textElem.dataset.original.replace(/\s+/g, ''));
         for (let i = 0; i < binary.length; i++) {
             hex += ('0' + binary.charCodeAt(i).toString(16)).slice(-2);
-            if ((i + 1) % 32 === 0) hex += '\n';
+            if ((i + 1) % 32 === 0 && i !== binary.length - 1) hex += '\n';
             else if ((i + 1) % 2 === 0) hex += ' ';
         }
         textElem.textContent = hex.trim();
     } catch (e) {
-        alert("Signature is not valid base64 or cannot be decoded.");
+        alert("Signature cannot be converted to hex.");
     }
 }
 
@@ -57,11 +54,17 @@ function showOriginalSignature() {
 // Copy signature to clipboard
 function copySignatureToClipboard() {
     const text = document.getElementById('signature-modal-text').textContent;
+    const copyButton = document.getElementById('signature-modal-copy');
+    const originalButtonText = copyButton.textContent;
+
     navigator.clipboard.writeText(text).then(() => {
-        document.getElementById('signature-modal-copied').style.display = 'inline';
+        copyButton.textContent = 'Copied to clipboard!';
+        copyButton.classList.add('copied');
+        
         setTimeout(() => {
-            document.getElementById('signature-modal-copied').style.display = 'none';
-        }, 1500);
+            copyButton.textContent = originalButtonText;
+            copyButton.classList.remove('copied');
+        }, 2000);
     });
 }
 

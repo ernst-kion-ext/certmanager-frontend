@@ -38,7 +38,6 @@ How to use:
 - [ ] Implement loading indicators for async actions
 - [ ] Add links to the vault url on the data
 - [ ] Implement pagination for certificate lists
-- [ ] Fix signature buttons
 - [ ] change some column filter into checkboxes/datepicker
 - [ ] show public key same as signature
 - [ ] Remove signature modal functionality

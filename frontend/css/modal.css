@@ -41,8 +41,28 @@
   width: 400px;
 }
 
-#signature-modal-copied {
-  margin-left: 10px;
-  color: green;
-  display: none;
+#signature-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Space between rows */
+}
+
+#signature-modal-actions-row1 {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px; /* Space between buttons in the first row */
+}
+
+#signature-modal-actions-row1 button {
+  flex-grow: 1; /* Allow buttons to grow and fill space */
+}
+
+#signature-modal-copy {
+  width: 100%;
+}
+
+#signature-modal-copy.copied {
+  background-color: #28a745; /* Green color */
+  color: white;
+  border-color: #28a745;
 }

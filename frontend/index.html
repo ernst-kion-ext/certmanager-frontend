@@ -74,12 +74,12 @@
   <div class="main-content" id="statistics-view" style="display:none;">
     <h2>Certificate Statistics</h2>
 
-      <div class="simple-bar-chart" id="simple-bar-chart">
-        <span id="total-certificates">0</span>
-        <span id="valid-certificates">0</span>
-        <span id="revoked-certificates">0</span>
-        <span id="expired-certificates">0</span>
-      </div>
+    <div class="simple-bar-chart" id="simple-bar-chart">
+      <span id="total-certificates">0</span>
+      <span id="valid-certificates">0</span>
+      <span id="revoked-certificates">0</span>
+      <span id="expired-certificates">0</span>
+    </div>
 
   </div>
 
@@ -89,13 +89,16 @@
       <button id="signature-modal-close" onclick="hideSignatureModal()">&times;</button>
       <h3>Certificate Signature</h3>
       <pre id="signature-modal-text"></pre>
-      <button id="signature-modal-copy" onclick="copySignatureToClipboard()">Copy to Clipboard</button>
-      <button id="signature-modal-decode" onclick="decodeBase64Signature()">Decode Base64</button>
-      <button id="signature-modal-hex" onclick="showSignatureAsHex()">Show as Hex</button>
-      <button id="signature-modal-original" onclick="showOriginalSignature()">Show Original</button>
-      <span id="signature-modal-copied">Copied!</span>
+      <div id="signature-modal-actions">
+        <div id="signature-modal-actions-row1">
+          <button onclick="showOriginalSignature()">Show Original</button>
+          <button onclick="decodeBase64Signature()">Show as Binary</button>
+          <button onclick="showSignatureAsHex()">Show as Hex</button>
+        </div>
+        <button id="signature-modal-copy" onclick="copySignatureToClipboard()">Copy to Clipboard</button>
+      </div>
     </div>
-  </div>
 
 </body>
+
 </html>
