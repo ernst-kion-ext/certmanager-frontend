@@ -21,6 +21,7 @@ async function getServerCertificates() {
     }
 }
 
+// currently unused, there for local debugging
 function getLocalCertificates() {
     return [
         {

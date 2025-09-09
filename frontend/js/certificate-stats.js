@@ -20,4 +20,26 @@ const certificateStats = {
     }
 };
 
+
+function displayStatistics(certificates) {
+    const stats = calculateStatistics(certificates);
+    const statsContainer = document.getElementById('certificate-stats');
+    statsContainer.innerHTML = `Issued: ${stats.issued}, Revoked: ${stats.revoked}`;
+}
+
+function calculateStatistics(certificates) {
+    let issued = 0;
+    let revoked = 0;
+
+    certificates.forEach(cert => {
+        if (cert.status === 'active') {
+            issued++;
+        } else if (cert.status === 'revoked') {
+            revoked++;
+        }
+    });
+
+    return { issued, revoked };
+}
+
 export default certificateStats;
