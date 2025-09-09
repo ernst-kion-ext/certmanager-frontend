@@ -149,24 +149,40 @@ function renderTable(data) {
 function renderColumnSearchFields() {
     const searchRow = document.getElementById('column-search-row');
     if (!searchRow) return;
-    searchRow.innerHTML = columns.map(col => `
-        <td>
-            <input 
-                type="text" 
-                class="column-search-input" 
-                data-colkey="${col.key}" 
-                placeholder="Search ${col.label}" 
-                style="width: 95%; box-sizing: border-box;"
-            >
-        </td>
-    `).join('');
+    searchRow.innerHTML = columns.map(col => {
+        // Use date input for Not Valid Before and Not Valid After
+        if (col.key === "notvalidbefore" || col.key === "notvalidafter") {
+            return `
+                <td>
+                    <input 
+                        type="date" 
+                        class="column-search-input" 
+                        data-colkey="${col.key}" 
+                        placeholder="Search ${col.label}" 
+                        style="width: 95%; box-sizing: border-box;"
+                    >
+                </td>
+            `;
+        }
+        return `
+            <td>
+                <input 
+                    type="text" 
+                    class="column-search-input" 
+                    data-colkey="${col.key}" 
+                    placeholder="Search ${col.label}" 
+                    style="width: 95%; box-sizing: border-box;"
+                >
+            </td>
+        `;
+    }).join('');
 }
 
 function getFilteredCertificates() {
     const inputs = document.querySelectorAll('.column-search-input');
     let filters = {};
     inputs.forEach(input => {
-        const val = input.value.trim().toLowerCase();
+        const val = input.value.trim();
         if (val) filters[input.dataset.colkey] = val;
     });
 
@@ -183,7 +199,6 @@ function getFilteredCertificates() {
             } else if (col.key === "publickey_size") {
                 value = cert.publickey?.size || cert.publickey?.key_size;
             } else if (col.key === "publickey") {
-                // Search both PEM and SSH values
                 value = [
                     cert.publickey?.pem,
                     cert.publickey?.ssh
@@ -191,7 +206,23 @@ function getFilteredCertificates() {
             } else {
                 value = cert[col.key];
             }
-            return (value).toString().toLowerCase().includes(filters[col.key]);
+
+            // Special handling for date columns
+            if (col.key === "notvalidbefore" || col.key === "notvalidafter") {
+                if (!value) return false;
+
+                const certDate = new Date(value);
+                const filterDate = new Date(filters[col.key]);
+
+                if (isNaN(certDate) || isNaN(filterDate)) return false;
+                if (col.key === "notvalidbefore") {
+                    return certDate <= filterDate;
+                } else {
+                    return certDate >= filterDate;
+                }
+            }
+
+            return (value).toString().toLowerCase().includes(filters[col.key].toLowerCase());
         });
     });
 
