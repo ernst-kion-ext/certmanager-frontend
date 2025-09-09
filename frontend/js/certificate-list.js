@@ -83,6 +83,9 @@ const columns = [
 
 let currentSort = { colKey: null, direction: 'asc' }; // Track current sort column and direction
 
+// Store selected key usages globally for filtering
+let selectedKeyUsages = [];
+
 async function fetchCertificates() {
     const btn = document.getElementById('fetch-certificates-btn');
     btn.disabled = true;
@@ -164,6 +167,14 @@ function renderColumnSearchFields() {
                 </td>
             `;
         }
+        // Use modal trigger for Key Usage
+        if (col.key === "keyUsage") {
+            return `
+                <td>
+                    <button type="button" id="keyusage-filter-btn" class="keyusage-filter-btn">Filter...</button>
+                </td>
+            `;
+        }
         return `
             <td>
                 <input 
@@ -176,8 +187,81 @@ function renderColumnSearchFields() {
             </td>
         `;
     }).join('');
+
+    // Modal logic for Key Usage filter
+    const btn = document.getElementById('keyusage-filter-btn');
+    if (btn) {
+        btn.addEventListener('click', showKeyUsageModal);
+    }
 }
 
+// Modal creation and logic for Key Usage filter
+function showKeyUsageModal() {
+    let modal = document.getElementById('keyusage-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'keyusage-modal';
+        modal.className = 'custom-modal';
+        modal.innerHTML = `
+            <div class="custom-modal-content">
+                <button class="custom-modal-close" id="keyusage-modal-close">&times;</button>
+                <h3>Filter by Key Usage</h3>
+                <form id="keyusage-checkboxes-form"></form>
+                <div style="margin-top:16px;">
+                    <button type="button" id="keyusage-modal-apply" class="keyusage-modal-apply">Apply</button>
+                    <button type="button" id="keyusage-modal-clear" class="keyusage-modal-clear">Clear</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    // Only show usages that exist in the current certificate list
+    const usagesSet = new Set();
+    (window.certificates || []).forEach(cert => {
+        getKeyUsage(cert).split(',').map(s => s.trim()).filter(Boolean).forEach(u => usagesSet.add(u));
+    });
+    const usages = Array.from(usagesSet);
+
+    const form = modal.querySelector('#keyusage-checkboxes-form');
+    form.innerHTML = usages.length === 0
+        ? '<div style="color:#888;">No key usages found in current list.</div>'
+        : usages.map(usage => `
+            <label style="display:block; margin-bottom:4px;">
+                <input type="checkbox" class="keyusage-checkbox" value="${usage}">
+                ${usage.replace(/_/g, ' ')}
+            </label>
+        `).join('');
+
+    // Restore checked state from selectedKeyUsages
+    form.querySelectorAll('.keyusage-checkbox').forEach(cb => {
+        if (selectedKeyUsages.includes(cb.value)) cb.checked = true;
+    });
+
+    // Show modal
+    modal.style.display = 'block';
+
+    // Close logic
+    modal.querySelector('#keyusage-modal-close').onclick = () => { modal.style.display = 'none'; };
+    modal.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+
+    // Apply logic
+    modal.querySelector('#keyusage-modal-apply').onclick = () => {
+        // Save checked usages to global variable
+        selectedKeyUsages = Array.from(form.querySelectorAll('.keyusage-checkbox:checked')).map(cb => cb.value);
+        renderTable(getFilteredCertificates());
+        updateSortIndicators();
+        modal.style.display = 'none';
+    };
+
+    // Clear logic
+    modal.querySelector('#keyusage-modal-clear').onclick = () => {
+        form.querySelectorAll('.keyusage-checkbox').forEach(cb => cb.checked = false);
+        selectedKeyUsages = [];
+    };
+}
+
+// Update filtering logic for keyUsage checkboxes (now only modal checkboxes)
 function getFilteredCertificates() {
     const inputs = document.querySelectorAll('.column-search-input');
     let filters = {};
@@ -186,8 +270,19 @@ function getFilteredCertificates() {
         if (val) filters[input.dataset.colkey] = val;
     });
 
+    // Use selectedKeyUsages for filtering
+    let checkedKeyUsages = selectedKeyUsages || [];
+
     let filtered = certificates.filter(cert => {
         return columns.every(col => {
+            // Key Usage: filter by checked checkboxes
+            if (col.key === "keyUsage") {
+                if (checkedKeyUsages.length === 0) return true;
+                const certUsages = getKeyUsage(cert).split(',').map(s => s.trim()).filter(Boolean);
+                // All checked usages must be present in certUsages
+                return checkedKeyUsages.every(usage => certUsages.includes(usage));
+            }
+
             if (!filters[col.key]) return true;
             let value;
             if (col.key === "subjectKeyIdentifier") {
@@ -210,10 +305,8 @@ function getFilteredCertificates() {
             // Special handling for date columns
             if (col.key === "notvalidbefore" || col.key === "notvalidafter") {
                 if (!value) return false;
-
                 const certDate = new Date(value);
                 const filterDate = new Date(filters[col.key]);
-
                 if (isNaN(certDate) || isNaN(filterDate)) return false;
                 if (col.key === "notvalidbefore") {
                     return certDate <= filterDate;

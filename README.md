@@ -38,8 +38,8 @@ How to use:
 - [ ] Implement loading indicators for async actions
 - [ ] Add links to the vault url on the data
 - [ ] Implement pagination for certificate lists
-- [ ] change some column filter into checkboxes/datepicker
 - [ ] Remove signature modal functionality
+- [ ] Prettify some UI elements like filter inputs and buttons
 
 
 ## Backend

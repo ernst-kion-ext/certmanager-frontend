@@ -44,6 +44,7 @@ tbody tr:hover {
   background: #f0f8ff;
 }
 
+/*  Pagination */
 .pagination {
   display: flex;
   justify-content: flex-end;
@@ -79,4 +80,83 @@ tbody tr:hover {
 
 .row-not-valid {
   background: #ffeaea;
+}
+
+/*  Key Usage Filter Button */
+.keyusage-filter-btn {
+  width: 100%;
+  padding: 6px 0;
+  border: 1px solid #bbb;
+  background: #f7f7f7;
+  color: #222;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s, color 0.2s;
+}
+
+.keyusage-filter-btn:hover,
+.keyusage-filter-btn:focus {
+  background: #00b386;
+  color: #fff;
+  border-color: #00b386;
+}
+
+.custom-modal {
+  display: none;
+  position: fixed;
+  z-index: 1002;
+  left: 0; top: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.25);
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-modal-content {
+  background: #fff;
+  margin: 10vh auto;
+  padding: 24px 32px 18px 32px;
+  border-radius: 10px;
+  max-width: 340px;
+  min-width: 220px;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.18);
+  position: relative;
+}
+
+.custom-modal-close {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  background: none;
+  border: none;
+  font-size: 1.7em;
+  color: #888;
+  cursor: pointer;
+}
+
+.keyusage-modal-apply,
+.keyusage-modal-clear {
+  margin-right: 10px;
+  padding: 6px 18px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  background: #f7f7f7;
+  color: #222;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.keyusage-modal-apply:hover,
+.keyusage-modal-apply:focus {
+  background: #00b386;
+  color: #fff;
+  border-color: #00b386;
+}
+
+.keyusage-modal-clear:hover,
+.keyusage-modal-clear:focus {
+  background: #ffeaea;
+  color: #d00;
+  border-color: #d00;
 }
