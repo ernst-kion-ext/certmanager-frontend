@@ -137,3 +137,19 @@ document.addEventListener('click', function (e) {
         showPublicKeyModal(publicKey);
     }
 });
+
+// Add ESC key support for closing modals
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        // Close signature modal if open
+        const sigModal = document.getElementById('signature-modal');
+        if (sigModal && sigModal.style.display === 'flex') {
+            hideSignatureModal();
+        }
+        // Close public key modal if open
+        const pubModal = document.getElementById('publickey-modal');
+        if (pubModal && pubModal.style.display === 'flex') {
+            hidePublicKeyModal();
+        }
+    }
+});
