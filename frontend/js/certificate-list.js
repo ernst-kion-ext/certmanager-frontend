@@ -119,7 +119,7 @@ function renderTable(data) {
                 <td>${cert.subject || cert.cn || ''}</td>
                 <td>${cert.notvalidbefore || ''}</td>
                 <td>${cert.notvalidafter || ''}</td>
-                <td>${cert.daysleft !== undefined ? cert.daysleft : ''}</td>
+                <td>${cert.daysleft}</td>
                 <td>${getKeyUsage(cert)}</td>
                 <td>${cert.issuer || ''}</td>
                 <td>${cert.status || ''}</td>

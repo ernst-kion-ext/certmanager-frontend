@@ -89,7 +89,7 @@ def getCertificateDetails(certificate):
     certificateObject['notvalidafter'] = notvalidafter.strftime("%c")
 
     # Shows how much time is left on the certificate
-    daysleft = abs(notvalidafter-datetime.now(UTC)).days
+    daysleft = (notvalidafter-datetime.now(UTC)).days
     certificateObject['daysleft'] = daysleft 
 
     # Public key
