@@ -16,7 +16,7 @@ How to use:
 
 ### Features
 
-- Server selection (Production, UAT, Localhost, Ernst)
+- Server selection (Production, UAT, Localhost)
 - API key authentication (required, sent via HTTP header)
 - Limit the number of certificates fetched (optional, via `certamount` header)
 - Global and per-column filtering/search
@@ -36,9 +36,7 @@ How to use:
 - [ ] Improve error handling and user feedback.
 - [ ] Optionally support Vault token input
 - [ ] Remove field for limiting the certificates
-- [ ] Add pagination for large certificate lists
 - [ ] Implement loading indicators for async actions
-- [ ] Prettify frontend design
 
 
 ## Backend

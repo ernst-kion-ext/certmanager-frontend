@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Certmanager Codesign - Certificate List</title>
+  <title>Certificate Management</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/loadCertificates.js"></script>
   <script src="js/certificate-list.js"></script>
@@ -13,61 +13,68 @@
 <body>
   <h1>Certificate Manager</h1>
 
-  <!-- Inputs -->
-  <div>
-    <label for="server-select">Choose server:</label>
-    <select id="server-select">
-      <option value="https://vault.kiongroup.com:8200/">Production</option>
-      <option value="https://vault-uat.kiongroup.com:8200/">UAT (Testing)</option>
-      <option value="http://localhost:8000/">Localhost</option>
-    </select>
+  <div class="sidebar">
+    <div class="sidebar-title">Certificate<br>Management</div>
+    <button class="sidebar-btn active">Certificates</button>
+    <button class="sidebar-btn">Statistics</button>
+
+    <!-- Inputs -->
+    <div>
+      <label for="server-select">Choose server:</label>
+      <select id="server-select">
+        <option value="https://vault.kiongroup.com:8200/">Production</option>
+        <option value="https://vault-uat.kiongroup.com:8200/">UAT (Testing)</option>
+        <option value="http://localhost:8000/">Localhost</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="api-key-input">API Key:</label>
+      <input type="text" id="api-key-input" placeholder="Enter API key for certmanager ui server">
+      <label for="certamount-input" class="certamount-label">Max certificates:</label>
+      <input type="number" id="certamount-input" min="1" class="certamount-input" placeholder="All">
+      <button id="fetch-certificates-btn" onclick="fetchCertificates()">Submit</button>
+    </div>
   </div>
 
-  <div>
-    <label for="api-key-input">API Key:</label>
-    <input type="text" id="api-key-input" placeholder="Enter API key for certmanager ui server">
-    <label for="certamount-input" class="certamount-label">Max certificates:</label>
-    <input type="number" id="certamount-input" min="1" class="certamount-input" placeholder="All">
-    <button id="fetch-certificates-btn" onclick="fetchCertificates()">Submit</button>
-  </div>
+  <div class="main-content">
+    <h2>Certificate Table</h2>
+    <div class="filter-input-container">
+      <input type="text" id="filter-input" placeholder="Search all fields">
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Not Valid Before</th>
+          <th>Not Valid After</th>
+          <th>Days Left</th>
+          <th>Key Usage</th>
+          <th>Issuer</th>
+          <th>Status</th>
+          <th>Fingerprint</th>
+          <th>Signature Hash Algorithm</th>
+          <th>Public Key Type</th>
+          <th>Public Key Size</th>
+          <th>Signature</th>
+        </tr>
+        <tr id="column-search-row"></tr>
+      </thead>
+      <tbody id="certificates-body"></tbody>
+    </table>
 
-  <!-- Output -->
-  <h2>Certificate Table</h2>
-  <div class="filter-input-container">
-    <input type="text" id="filter-input" placeholder="Search all fields">
-  </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Subject</th>
-        <th>Not Valid Before</th>
-        <th>Not Valid After</th>
-        <th>Days Left</th>
-        <th>Key Usage</th>
-        <th>Issuer</th>
-        <th>Status</th>
-        <th>Fingerprint</th>
-        <th>Signature Hash Algorithm</th>
-        <th>Public Key Type</th>
-        <th>Public Key Size</th>
-        <th>Signature</th>
-      </tr>
-      <tr id="column-search-row"></tr>
-    </thead>
-    <tbody id="certificates-body"></tbody>
-  </table>
-
-  <!-- Signature Modal -->
-  <div id="signature-modal" onclick="closeModalOnOutsideClick(event)">
-    <div id="signature-modal-content">
-      <button id="signature-modal-close" onclick="hideSignatureModal()">&times;</button>
-      <h3>Certificate Signature</h3>
-      <pre id="signature-modal-text"></pre>
-      <button id="signature-modal-copy" onclick="copySignatureToClipboard()">Copy to Clipboard</button>
-      <button id="signature-modal-decode" onclick="decodeBase64Signature()">Decode Base64</button>
-      <button id="signature-modal-hex" onclick="showSignatureAsHex()">Show as Hex</button>
-      <button id="signature-modal-original" onclick="showOriginalSignature()">Show Original</button>
-      <span id="signature-modal-copied">Copied!</span>
+    <!-- Signature Modal -->
+    <div id="signature-modal" onclick="closeModalOnOutsideClick(event)">
+      <div id="signature-modal-content">
+        <button id="signature-modal-close" onclick="hideSignatureModal()">&times;</button>
+        <h3>Certificate Signature</h3>
+        <pre id="signature-modal-text"></pre>
+        <button id="signature-modal-copy" onclick="copySignatureToClipboard()">Copy to Clipboard</button>
+        <button id="signature-modal-decode" onclick="decodeBase64Signature()">Decode Base64</button>
+        <button id="signature-modal-hex" onclick="showSignatureAsHex()">Show as Hex</button>
+        <button id="signature-modal-original" onclick="showOriginalSignature()">Show Original</button>
+        <span id="signature-modal-copied">Copied!</span>
+      </div>
     </div>
   </div>
 
