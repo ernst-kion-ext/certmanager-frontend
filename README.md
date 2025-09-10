@@ -40,6 +40,7 @@ How to use:
 - [ ] Implement pagination for certificate lists
 - [ ] Remove signature modal functionality
 - [ ] Prettify some UI elements like filter inputs and buttons
+- [ ] Options to hide expired or valid certificates
 
 
 ## Backend

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/modal.css">
   <link rel="stylesheet" href="css/statistics.css">
   <script src="js/loadCertificates.js"></script>
+  <script src="js/column-selector.js"></script>
   <script src="js/certificate-list.js"></script>
   <script src="js/modal.js"></script>
   <script src="js/certificate-stats.js"></script>
@@ -39,6 +40,27 @@
       <label for="certamount-input" class="certamount-label">Max certificates:</label>
       <input type="number" id="certamount-input" min="1" class="certamount-input" placeholder="All">
       <button id="fetch-certificates-btn" onclick="fetchCertificates()">Submit</button>
+    </div>
+
+    <!-- Column Selector -->
+    <div style="margin-top: 30px;">
+      <label style="font-weight:bold;">Table Columns:</label>
+      <div id="column-selectors" style="display: flex; flex-direction: column; gap: 4px; margin-top: 8px;">
+        <label><input type="checkbox" class="column-checkbox" data-column="Subject" checked> Subject</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Not Valid Before" checked> Not Valid Before</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Not Valid After" checked> Not Valid After</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Days Left" checked> Days Left</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Key Usage" checked> Key Usage</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Issuer" checked> Issuer</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Status" checked> Status</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Fingerprint" checked> Fingerprint</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Signature Hash Algorithm" checked> Signature Hash Algorithm</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Public Key Type" checked> Public Key Type</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Public Key Size" checked> Public Key Size</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Subject Key Identifier" checked> Subject Key Identifier</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Public Key" checked> Public Key</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Signature" checked> Signature</label>
+      </div>
     </div>
   </div>
 

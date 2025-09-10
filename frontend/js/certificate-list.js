@@ -47,20 +47,20 @@ document.addEventListener('DOMContentLoaded', async function () {
     const statisticsView = document.getElementById('statistics-view');
 
     if (certificatesBtn && statisticsBtn && certificatesView && statisticsView) {
-        certificatesBtn.addEventListener('click', function() {
-            certificatesView.style.display = 'block';
-            statisticsView.style.display = 'none';
-            certificatesBtn.classList.add('active');
-            statisticsBtn.classList.remove('active');
-        });
+    certificatesBtn.addEventListener('click', function() {
+        certificatesView.style.display = 'block';
+        statisticsView.style.display = 'none';
+        certificatesBtn.classList.add('active');
+        statisticsBtn.classList.remove('active');
+    });
 
-        statisticsBtn.addEventListener('click', function() {
-            certificatesView.style.display = 'none';
-            statisticsView.style.display = 'block';
-            certificatesBtn.classList.remove('active');
-            statisticsBtn.classList.add('active');
-            updateStatistics();
-        });
+    statisticsBtn.addEventListener('click', function() {
+        certificatesView.style.display = 'none';
+        statisticsView.style.display = 'block';
+        certificatesBtn.classList.remove('active');
+        statisticsBtn.classList.add('active');
+        updateStatistics();
+    });
     }
 });
 
@@ -147,6 +147,7 @@ function renderTable(data) {
             </tr>
         `}).join('');
     }
+    updateColumnVisibility();
 }
 
 function renderColumnSearchFields() {
