@@ -1,4 +1,7 @@
-/* Certificate table and filter styles */
+/* General Certificate table */
+tbody tr:hover {
+  background: #f0f8ff;
+}
 
 .filter-input-container {
   margin-bottom: 10px;
@@ -33,6 +36,7 @@ th {
   font-weight: bold;
 }
 
+/* Search Filter styling */
 tr#column-search-row th,
 tr#column-search-row td {
   background: #fff;
@@ -40,11 +44,36 @@ tr#column-search-row td {
   padding: 0;
 }
 
-tbody tr:hover {
-  background: #f0f8ff;
+tr#column-search-row td {
+  padding: 0;
+  border: 1px solid #222;
+  background: #fff;
 }
 
-/*  Pagination */
+tr#column-search-row input,
+.column-search-input {
+  width: 95%;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 1em;
+  background: transparent;
+}
+
+tr#column-search-row input[type="date"].column-search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 1em;
+  box-sizing: border-box;
+  font-family: inherit;
+  color: #222; 
+}
+
+/* Pagination */
 .pagination {
   display: flex;
   justify-content: flex-end;
@@ -82,7 +111,7 @@ tbody tr:hover {
   background: #ffeaea;
 }
 
-/*  Key Usage Filter Button */
+/* Key Usage Filter Button */
 .keyusage-filter-btn {
   width: 100%;
   padding: 6px 0;
@@ -102,6 +131,7 @@ tbody tr:hover {
   border-color: #00b386;
 }
 
+/* Modal styles */
 .custom-modal {
   display: none;
   position: fixed;

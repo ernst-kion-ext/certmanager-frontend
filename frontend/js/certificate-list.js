@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     });
 
-    renderColumnSearchFields();
     renderTable(getFilteredCertificates());
     updateSortIndicators();
 
@@ -154,52 +153,6 @@ function renderTable(data) {
         `}).join('');
     }
     updateColumnVisibility();
-}
-
-function renderColumnSearchFields() {
-    const searchRow = document.getElementById('column-search-row');
-    if (!searchRow) return;
-    searchRow.innerHTML = columns.map(col => {
-        // Use date input for Not Valid Before and Not Valid After
-        if (col.key === "notvalidbefore" || col.key === "notvalidafter") {
-            return `
-                <td>
-                    <input 
-                        type="date" 
-                        class="column-search-input" 
-                        data-colkey="${col.key}" 
-                        placeholder="Search ${col.label}" 
-                        style="width: 95%; box-sizing: border-box;"
-                    >
-                </td>
-            `;
-        }
-        // Use modal trigger for Key Usage
-        if (col.key === "keyUsage") {
-            return `
-                <td>
-                    <button type="button" id="keyusage-filter-btn" class="keyusage-filter-btn">Filter...</button>
-                </td>
-            `;
-        }
-        return `
-            <td>
-                <input 
-                    type="text" 
-                    class="column-search-input" 
-                    data-colkey="${col.key}" 
-                    placeholder="Search ${col.label}" 
-                    style="width: 95%; box-sizing: border-box;"
-                >
-            </td>
-        `;
-    }).join('');
-
-    // Modal logic for Key Usage filter
-    const btn = document.getElementById('keyusage-filter-btn');
-    if (btn) {
-        btn.addEventListener('click', showKeyUsageModal);
-    }
 }
 
 // Modal creation and logic for Key Usage filter

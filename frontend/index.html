@@ -92,7 +92,53 @@
           <th>Public Key</th>
           <th>Signature</th>
         </tr>
-        <tr id="column-search-row"></tr>
+        <tr id="column-search-row">
+          <td>
+            <input type="text" class="column-search-input" data-colkey="subject" placeholder="Search Subject">
+          </td>
+          <td>
+            <input type="date" class="column-search-input" data-colkey="notvalidbefore">
+          </td>
+          <td>
+            <input type="date" class="column-search-input" data-colkey="notvalidafter">
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="daysleft" placeholder="Search Days Left">
+          </td>
+          <td>
+            <button type="button" class="keyusage-filter-btn">Filter...</button>
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="issuer" placeholder="Search Issuer">
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="status" placeholder="Search Status">
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="fingerprint" placeholder="Search Fingerprint">
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="engine" placeholder="Search Engine">
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="signaturehashalgorithm" placeholder="Search Signature Hash Algorithm">
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="publickey_type" placeholder="Search Public Key Type">
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="publickey_size" placeholder="Search Public Key Size">
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="subjectKeyIdentifier" placeholder="Search Subject Key Identifier">
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="publickey" placeholder="Search Public Key">
+          </td>
+          <td>
+            <input type="text" class="column-search-input" data-colkey="signature" placeholder="Search Signature">
+          </td>
+        </tr>
       </thead>
       <tbody id="certificates-body"></tbody>
     </table>
