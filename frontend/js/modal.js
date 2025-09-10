@@ -1,3 +1,5 @@
+let selectedKeyUsages = [];
+
 // Show the modal with the given signature
 function showSignatureModal(signature) {
     const modal = document.getElementById('signature-modal');
@@ -153,3 +155,136 @@ document.addEventListener('keydown', function (e) {
         }
     }
 });
+
+// Modal creation and logic for Key Usage filter
+function showKeyUsageModal() {
+    let modal = document.getElementById('keyusage-modal');
+    if (!modal) return;
+
+    modal.style.display = 'block';
+
+    // Only show usages that exist in the current certificate list
+    const usagesSet = new Set();
+    (window.certificates).forEach(cert => {
+        getKeyUsage(cert).split(',').map(s => s.trim()).filter(Boolean).forEach(u => usagesSet.add(u));
+    });
+    const usages = Array.from(usagesSet);
+
+    const form = modal.querySelector('#keyusage-checkboxes-form');
+    form.innerHTML = usages.length === 0
+        ? '<div style="color:#888;">No key usages found in current list.</div>'
+        : usages.map(usage => `
+            <label style="display:block; margin-bottom:4px;">
+                <input type="checkbox" class="keyusage-checkbox" value="${usage}">
+                ${usage.replace(/_/g, ' ')}
+            </label>
+        `).join('');
+
+    // Restore checked state from selectedKeyUsages
+    form.querySelectorAll('.keyusage-checkbox').forEach(cb => {
+        if (selectedKeyUsages.includes(cb.value)) cb.checked = true;
+    });
+}
+
+function closeKeyUsageModal() {
+    const modal = document.getElementById('keyusage-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function closeKeyUsageModalOnOutsideClick(event) {
+    const modal = document.getElementById('keyusage-modal');
+    if (modal && event.target === modal) modal.style.display = 'none';
+}
+
+function applyKeyUsageModal() {
+    const modal = document.getElementById('keyusage-modal');
+    if (!modal) return;
+    const form = modal.querySelector('#keyusage-checkboxes-form');
+    // Save checked usages to global variable
+    selectedKeyUsages = Array.from(form.querySelectorAll('.keyusage-checkbox:checked')).map(cb => cb.value);
+    window.pagination.reset();
+    modal.style.display = 'none';
+}
+
+function clearKeyUsageModal() {
+    const modal = document.getElementById('keyusage-modal');
+    if (!modal) return;
+    const form = modal.querySelector('#keyusage-checkboxes-form');
+    form.querySelectorAll('.keyusage-checkbox').forEach(cb => cb.checked = false);
+    selectedKeyUsages = [];
+}
+
+
+// Update filtering logic for keyUsage checkboxes (now only modal checkboxes)
+function getFilteredCertificates() {
+    const inputs = document.querySelectorAll('.column-search-input');
+    let filters = {};
+    inputs.forEach(input => {
+        const val = input.value.trim();
+        if (val) filters[input.dataset.colkey] = val;
+    });
+
+    let checkedKeyUsages = selectedKeyUsages;
+
+    let filtered = window.certificates.filter(cert => {
+        return columns.every(col => {
+            // Key Usage: filter by checked checkboxes
+            if (col.key === "keyUsage") {
+                if (checkedKeyUsages.length === 0) return true;
+                const certUsages = getKeyUsage(cert).split(',').map(s => s.trim()).filter(Boolean);
+                return checkedKeyUsages.every(usage => certUsages.includes(usage));
+            }
+
+            if (!filters[col.key]) return true;
+            let value;
+            if (col.key === "subjectKeyIdentifier") {
+                value = cert.extensions?.subjectKeyIdentifier;
+            } else if (col.key === "keyUsage") {
+                value = getKeyUsage(cert);
+            } else if (col.key === "publickey_type") {
+                value = cert.publickey?.type;
+            } else if (col.key === "publickey_size") {
+                value = cert.publickey?.size || cert.publickey?.key_size;
+            } else if (col.key === "publickey") {
+                value = [
+                    cert.publickey?.pem,
+                    cert.publickey?.ssh
+                ].join(" ");
+            } else {
+                value = cert[col.key];
+            }
+
+            // Special handling for date columns
+            if (col.key === "notvalidbefore" || col.key === "notvalidafter") {
+                if (!value) return false;
+                const certDate = new Date(value);
+                const filterDate = new Date(filters[col.key]);
+                if (isNaN(certDate) || isNaN(filterDate)) return false;
+                if (col.key === "notvalidbefore") {
+                    return certDate <= filterDate;
+                } else {
+                    return certDate >= filterDate;
+                }
+            }
+
+            return value.toString().toLowerCase().includes(filters[col.key].toLowerCase());
+        });
+    });
+
+    // Apply global filter input (search all fields)
+    const filterInput = document.getElementById('filter-input');
+    if (filterInput && filterInput.value.trim()) {
+        const q = filterInput.value.trim().toLowerCase();
+        filtered = filtered.filter(cert =>
+            Object.values(cert).some(val =>
+                (typeof val === "object")
+                    ? JSON.stringify(val).toLowerCase().includes(q)
+                    : (val).toString().toLowerCase().includes(q)
+            )
+        );
+    }
+
+    return filtered;
+}
+
+window.getFilteredCertificates = getFilteredCertificates;

@@ -1,66 +1,45 @@
 document.addEventListener('DOMContentLoaded', async function () {
 
-    window.certificates = window.certificates || [];
-
-    columns.forEach((col, idx) => {
-        const th = document.querySelectorAll('thead th')[idx];
-        if (th) {
-            th.style.cursor = "pointer";
-            th.title = "Click to sort";
-            th.addEventListener('click', () => {
-                // Toggle sort direction if same column, else default to ascending
-                if (currentSort.colKey === col.key) {
-                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-                } else {
-                    currentSort.colKey = col.key;
-                    currentSort.direction = 'asc';
-                }
-                sortByColumn(col.key, currentSort.direction);
-                updateSortIndicators();
-            });
-        }
-    });
-
-    renderTable(getFilteredCertificates());
-    updateSortIndicators();
-
     document.getElementById('column-search-row').addEventListener('input', function (e) {
         if (e.target.classList.contains('column-search-input')) {
-            renderTable(getFilteredCertificates());
-            updateSortIndicators();
+            window.pagination.reset();
         }
     });
 
     const filterInput = document.getElementById('filter-input');
     if (filterInput) {
         filterInput.addEventListener('input', function () {
-            renderTable(getFilteredCertificates());
-            updateSortIndicators();
+            window.pagination.reset();
         });
     }
 
-    // Sidebar view switching logic
+    // Sidebar view content switching logic
     const certificatesBtn = document.getElementById('certificates-btn');
     const statisticsBtn = document.getElementById('statistics-btn');
     const certificatesView = document.getElementById('certificates-view');
     const statisticsView = document.getElementById('statistics-view');
 
     if (certificatesBtn && statisticsBtn && certificatesView && statisticsView) {
-    certificatesBtn.addEventListener('click', function() {
-        certificatesView.style.display = 'block';
-        statisticsView.style.display = 'none';
-        certificatesBtn.classList.add('active');
-        statisticsBtn.classList.remove('active');
-    });
+        certificatesBtn.addEventListener('click', function() {
+            certificatesView.style.display = 'block';
+            statisticsView.style.display = 'none';
+            certificatesBtn.classList.add('active');
+            statisticsBtn.classList.remove('active');
+        });
 
-    statisticsBtn.addEventListener('click', function() {
-        certificatesView.style.display = 'none';
-        statisticsView.style.display = 'block';
-        certificatesBtn.classList.remove('active');
-        statisticsBtn.classList.add('active');
-        updateStatistics();
-    });
+        statisticsBtn.addEventListener('click', function() {
+            certificatesView.style.display = 'none';
+            statisticsView.style.display = 'block';
+            certificatesBtn.classList.remove('active');
+            statisticsBtn.classList.add('active');
+            updateStatistics();
+        });
     }
+
+    // Initialize pagination
+    window.pagination.init();
+
+    setupColumnVisibilityListener();
 });
 
 const columns = [
@@ -81,49 +60,27 @@ const columns = [
     { key: "signature", label: "Signature" }
 ];
 
-let currentSort = { colKey: null, direction: 'asc' }; // Track current sort column and direction
+let currentSort = { colKey: null, direction: 'asc' };
 
-// Store selected key usages globally for filtering
-let selectedKeyUsages = [];
-
-async function fetchCertificates() {
-    const btn = document.getElementById('fetch-certificates-btn');
-    btn.disabled = true;
-    const originalText = btn.textContent;
-    btn.textContent = "Loading...";
-
-    try {
-        const data = await getServerCertificates();
-        window.metadata = data.metadata;
-        const certificates = data.certificates;
-        processCertificateStatuses(certificates);
-        window.certificates = certificates;
-        renderTable(getFilteredCertificates());
-    } catch (error) {
-        console.error(error);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
-    }
-}
-
-function getKeyUsage(cert) {
-    if (cert.keyUsage) return cert.keyUsage;
-    if (cert.extensions && cert.extensions.extendedKeyUsage) {
-        return cert.extensions.extendedKeyUsage.join(', ');
-    }
-    if (cert.extensions && cert.extensions.keyUsage) {
-        return Object.keys(cert.extensions.keyUsage).filter(k => cert.extensions.keyUsage[k]).join(', ');
-    }
-    return '';
+// Toggle sort direction if same column, else default to ascending
+function changeSortOrderForColumn(receivedColumn) {
+                if (currentSort.colKey === receivedColumn) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.colKey = receivedColumn;
+                    currentSort.direction = 'asc';
+                }
+                sortByColumn(currentSort.colKey, currentSort.direction);
+                updateSortIndicators();
 }
 
 function renderTable(data) {
     const tbody = document.getElementById('certificates-body');
+    window.pagination.updateUI(data);
+    const pageData = window.pagination.getCurrentPageData(data);
 
     if (tbody) {
-        tbody.innerHTML = data.map((cert) => {
-            // Row class for non-valid certificates (expired or revoked)
+        tbody.innerHTML = pageData.map(cert => {
             const rowClass = (cert.status !== "valid") ? 'row-not-valid' : '';
             // Careful, the order or columns matters and
             // have to correspond to the index.html
@@ -153,154 +110,48 @@ function renderTable(data) {
         `}).join('');
     }
     updateColumnVisibility();
+    updateSortIndicators();
 }
 
-// Modal creation and logic for Key Usage filter
-function showKeyUsageModal() {
-    let modal = document.getElementById('keyusage-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'keyusage-modal';
-        modal.className = 'custom-modal';
-        modal.innerHTML = `
-            <div class="custom-modal-content">
-                <button class="custom-modal-close" id="keyusage-modal-close">&times;</button>
-                <h3>Filter by Key Usage</h3>
-                <form id="keyusage-checkboxes-form"></form>
-                <div style="margin-top:16px;">
-                    <button type="button" id="keyusage-modal-apply" class="keyusage-modal-apply">Apply</button>
-                    <button type="button" id="keyusage-modal-clear" class="keyusage-modal-clear">Clear</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
+async function fetchCertificates() {
+    const btn = document.getElementById('fetch-certificates-btn');
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = "Loading...";
+
+    try {
+        const data = await getServerCertificates();
+        window.metadata = data.metadata;
+        const certificates = data.certificates;
+        processCertificateStatuses(certificates);
+        window.certificates = certificates;
+        window.pagination.reset();
+    } catch (error) {
+        console.error(error);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
     }
-
-    // Only show usages that exist in the current certificate list
-    const usagesSet = new Set();
-    (window.certificates || []).forEach(cert => {
-        getKeyUsage(cert).split(',').map(s => s.trim()).filter(Boolean).forEach(u => usagesSet.add(u));
-    });
-    const usages = Array.from(usagesSet);
-
-    const form = modal.querySelector('#keyusage-checkboxes-form');
-    form.innerHTML = usages.length === 0
-        ? '<div style="color:#888;">No key usages found in current list.</div>'
-        : usages.map(usage => `
-            <label style="display:block; margin-bottom:4px;">
-                <input type="checkbox" class="keyusage-checkbox" value="${usage}">
-                ${usage.replace(/_/g, ' ')}
-            </label>
-        `).join('');
-
-    // Restore checked state from selectedKeyUsages
-    form.querySelectorAll('.keyusage-checkbox').forEach(cb => {
-        if (selectedKeyUsages.includes(cb.value)) cb.checked = true;
-    });
-
-    // Show modal
-    modal.style.display = 'block';
-
-    // Close logic
-    modal.querySelector('#keyusage-modal-close').onclick = () => { modal.style.display = 'none'; };
-    modal.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
-
-    // Apply logic
-    modal.querySelector('#keyusage-modal-apply').onclick = () => {
-        // Save checked usages to global variable
-        selectedKeyUsages = Array.from(form.querySelectorAll('.keyusage-checkbox:checked')).map(cb => cb.value);
-        renderTable(getFilteredCertificates());
-        updateSortIndicators();
-        modal.style.display = 'none';
-    };
-
-    // Clear logic
-    modal.querySelector('#keyusage-modal-clear').onclick = () => {
-        form.querySelectorAll('.keyusage-checkbox').forEach(cb => cb.checked = false);
-        selectedKeyUsages = [];
-    };
 }
 
-// Update filtering logic for keyUsage checkboxes (now only modal checkboxes)
-function getFilteredCertificates() {
-    const inputs = document.querySelectorAll('.column-search-input');
-    let filters = {};
-    inputs.forEach(input => {
-        const val = input.value.trim();
-        if (val) filters[input.dataset.colkey] = val;
-    });
-
-    // Use selectedKeyUsages for filtering
-    let checkedKeyUsages = selectedKeyUsages || [];
-
-    let filtered = certificates.filter(cert => {
-        return columns.every(col => {
-            // Key Usage: filter by checked checkboxes
-            if (col.key === "keyUsage") {
-                if (checkedKeyUsages.length === 0) return true;
-                const certUsages = getKeyUsage(cert).split(',').map(s => s.trim()).filter(Boolean);
-                // All checked usages must be present in certUsages
-                return checkedKeyUsages.every(usage => certUsages.includes(usage));
-            }
-
-            if (!filters[col.key]) return true;
-            let value;
-            if (col.key === "subjectKeyIdentifier") {
-                value = cert.extensions?.subjectKeyIdentifier;
-            } else if (col.key === "keyUsage") {
-                value = getKeyUsage(cert);
-            } else if (col.key === "publickey_type") {
-                value = cert.publickey?.type;
-            } else if (col.key === "publickey_size") {
-                value = cert.publickey?.size || cert.publickey?.key_size;
-            } else if (col.key === "publickey") {
-                value = [
-                    cert.publickey?.pem,
-                    cert.publickey?.ssh
-                ].join(" ");
-            } else {
-                value = cert[col.key];
-            }
-
-            // Special handling for date columns
-            if (col.key === "notvalidbefore" || col.key === "notvalidafter") {
-                if (!value) return false;
-                const certDate = new Date(value);
-                const filterDate = new Date(filters[col.key]);
-                if (isNaN(certDate) || isNaN(filterDate)) return false;
-                if (col.key === "notvalidbefore") {
-                    return certDate <= filterDate;
-                } else {
-                    return certDate >= filterDate;
-                }
-            }
-
-            return (value).toString().toLowerCase().includes(filters[col.key].toLowerCase());
-        });
-    });
-
-    // Apply global filter input (search all fields)
-    const filterInput = document.getElementById('filter-input');
-    if (filterInput && filterInput.value.trim()) {
-        const q = filterInput.value.trim().toLowerCase();
-        filtered = filtered.filter(cert =>
-            Object.values(cert).some(val =>
-                (typeof val === "object")
-                    ? JSON.stringify(val).toLowerCase().includes(q)
-                    : (val).toString().toLowerCase().includes(q)
-            )
-        );
+function getKeyUsage(cert) {
+    if (cert.keyUsage) return cert.keyUsage;
+    if (cert.extensions && cert.extensions.extendedKeyUsage) {
+        return cert.extensions.extendedKeyUsage.join(', ');
     }
-
-    return filtered;
+    if (cert.extensions && cert.extensions.keyUsage) {
+        return Object.keys(cert.extensions.keyUsage).filter(k => cert.extensions.keyUsage[k]).join(', ');
+    }
+    return '';
 }
 
+// Sorting functions
 function updateSortIndicators() {
     const ths = document.querySelectorAll('thead th');
-    ths.forEach((th, idx) => {
+    ths.forEach((th, index) => {
         // Remove any existing arrow
-        th.innerHTML = columns[idx].label;
-        if (columns[idx].key === currentSort.colKey) {
+        th.innerHTML = columns[index].label;
+        if (columns[index].key === currentSort.colKey) {
             th.innerHTML += currentSort.direction === 'asc' ? ' &#9650;' : ' &#9660;';
         }
     });
@@ -322,7 +173,7 @@ function sortByColumn(colKey, direction = 'asc') {
             keyFn = cert => cert[colKey];
     }
 
-    certificates.sort((a, b) => {
+    window.certificates.sort((a, b) => {
         let valA = keyFn(a) || "";
         let valB = keyFn(b) || "";
         if (valA < valB) return direction === 'asc' ? -1 : 1;
@@ -365,7 +216,7 @@ function getSubjectLink(cert) {
     const subject = cert.subject || cert.cn;
 
     if (subject && fingerprint) {
-        url = serverValue + 'ui/vault/secrets/' + pki_mount + '/pki/certificates/' + fingerprint + '/details';
+        const url = serverValue + 'ui/vault/secrets/' + pki_mount + '/pki/certificates/' + fingerprint + '/details';
         return `<a href="${url}" target="_blank" rel="noopener noreferrer">${subject}</a>`;
     } else {
         return subject;
@@ -377,7 +228,7 @@ function getEngineLink() {
     const pki_mount = window.metadata.pki_mount;
 
     if (serverValue && pki_mount) {
-        url = serverValue + 'ui/vault/secrets/' + pki_mount + '/pki/overview';
+        const url = serverValue + 'ui/vault/secrets/' + pki_mount + '/pki/overview';
         return `<a href="${url}" target="_blank" rel="noopener noreferrer">${pki_mount}</a>`;
     } else {
         return pki_mount;

@@ -1,0 +1,53 @@
+/* filepath: /mnt/Games/Kion/certmanager-frontend/frontend/css/pagination.css */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+}
+
+.pagination-info {
+  flex: 1;
+  color: #666;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pagination-controls button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background: #f8f8f8;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.pagination-text {
+  margin: 0 10px;
+}
+
+.entries-per-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.entries-per-page select {
+  padding: 4px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}

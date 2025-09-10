@@ -8,10 +8,12 @@
   <link rel="stylesheet" href="css/certificate-view.css">
   <link rel="stylesheet" href="css/modal.css">
   <link rel="stylesheet" href="css/statistics.css">
+  <link rel="stylesheet" href="css/pagination.css">
   <script src="js/loadCertificates.js"></script>
   <script src="js/column-selector.js"></script>
-  <script src="js/certificate-list.js"></script>
   <script src="js/modal.js"></script>
+  <script src="js/pagination.js"></script>
+  <script src="js/certificate-list.js"></script>
   <script src="js/certificate-stats.js"></script>
 </head>
 
@@ -76,21 +78,21 @@
         <!-- Careful, the order or columns matters and
              have to correspond to the certificate-list.js -->
         <tr>
-          <th>Subject</th>
-          <th>Not Valid Before</th>
-          <th>Not Valid After</th>
-          <th>Days Left</th>
-          <th>Key Usage</th>
-          <th>Issuer</th>
-          <th>Status</th>
-          <th>Fingerprint</th>
-          <th>Engine</th>
-          <th>Signature Hash Algorithm</th>
-          <th>Public Key Type</th>
-          <th>Public Key Size</th>
-          <th>Subject Key Identifier</th>
-          <th>Public Key</th>
-          <th>Signature</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('subject')">Subject</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('notvalidbefore')">Not Valid Before</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('notvalidafter')">Not Valid After</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('daysleft')">Days Left</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('keyUsage')">Key Usage</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('issuer')">Issuer</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('status')">Status</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('fingerprint')">Fingerprint</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('engine')">Engine</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('signaturehashalgorithm')">Signature Hash Algorithm</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('publickey_type')">Public Key Type</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('publickey_size')">Public Key Size</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('subjectKeyIdentifier')">Subject Key Identifier</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('publickey')">Public Key</th>
+          <th title="Click to sort" onclick="changeSortOrderForColumn('signature')">Signature</th>
         </tr>
         <tr id="column-search-row">
           <td>
@@ -106,7 +108,7 @@
             <input type="text" class="column-search-input" data-colkey="daysleft" placeholder="Search Days Left">
           </td>
           <td>
-            <button type="button" class="keyusage-filter-btn">Filter...</button>
+            <button type="button" class="keyusage-filter-btn" onclick="showKeyUsageModal()">Filter...</button>
           </td>
           <td>
             <input type="text" class="column-search-input" data-colkey="issuer" placeholder="Search Issuer">
@@ -142,6 +144,30 @@
       </thead>
       <tbody id="certificates-body"></tbody>
     </table>
+    
+    <!-- Pagination controls -->
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Showing <span id="showing-start">0</span> to <span id="showing-end">0</span> of <span id="total-entries">0</span> entries
+      </div>
+      <div class="pagination-controls">
+        <button id="first-page-btn" title="First Page">&laquo;</button>
+        <button id="prev-page-btn" title="Previous Page">&lsaquo;</button>
+        <span class="pagination-text">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+        <button id="next-page-btn" title="Next Page">&rsaquo;</button>
+        <button id="last-page-btn" title="Last Page">&raquo;</button>
+      </div>
+      <div class="entries-per-page">
+        <label for="entries-per-page-select">Show</label>
+        <select id="entries-per-page-select">
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <span>entries</span>
+      </div>
+    </div>
   </div>
 
   <!-- Statistics-View -->
@@ -182,6 +208,19 @@
       <pre id="publickey-modal-text"></pre>
       <div id="publickey-modal-actions">
         <button id="publickey-modal-copy" onclick="copyPublicKeyToClipboard()">Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Usage Modal -->
+  <div id="keyusage-modal" class="custom-modal" onclick="closeKeyUsageModalOnOutsideClick(event)">
+    <div class="custom-modal-content">
+      <button class="custom-modal-close" id="keyusage-modal-close" onclick="closeKeyUsageModal()">&times;</button>
+      <h3>Filter by Key Usage</h3>
+      <form id="keyusage-checkboxes-form"></form>
+      <div style="margin-top:16px;">
+        <button type="button" id="keyusage-modal-apply" class="keyusage-modal-apply" onclick="applyKeyUsageModal()">Apply</button>
+        <button type="button" id="keyusage-modal-clear" class="keyusage-modal-clear" onclick="clearKeyUsageModal()">Clear</button>
       </div>
     </div>
   </div>

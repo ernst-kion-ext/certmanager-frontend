@@ -1,10 +1,5 @@
 // Column visibility for sidebar checkboxes
 
-// At the end of DOMContentLoaded, setup Listener:
-document.addEventListener('DOMContentLoaded', function () {
-    setupColumnVisibilityListener();
-});
-
 function setupColumnVisibilityListener() {
     const columnCheckboxes = document.querySelectorAll('.column-checkbox');
     // Initial call (in case table is pre-filled)
