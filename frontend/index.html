@@ -60,6 +60,7 @@
         <label><input type="checkbox" class="column-checkbox" data-column="Subject Key Identifier" checked> Subject Key Identifier</label>
         <label><input type="checkbox" class="column-checkbox" data-column="Public Key" checked> Public Key</label>
         <label><input type="checkbox" class="column-checkbox" data-column="Signature" checked> Signature</label>
+        <label><input type="checkbox" class="column-checkbox" data-column="Engine" checked> Engine</label>
       </div>
     </div>
   </div>
@@ -72,6 +73,8 @@
     </div>
     <table>
       <thead>
+        <!-- Careful, the order or columns matters and
+             have to correspond to the certificate-list.js -->
         <tr>
           <th>Subject</th>
           <th>Not Valid Before</th>
@@ -81,6 +84,7 @@
           <th>Issuer</th>
           <th>Status</th>
           <th>Fingerprint</th>
+          <th>Engine</th>
           <th>Signature Hash Algorithm</th>
           <th>Public Key Type</th>
           <th>Public Key Size</th>

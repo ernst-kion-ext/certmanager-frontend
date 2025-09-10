@@ -35,13 +35,10 @@ How to use:
 - [ ] Improve error handling and user feedback.
 - [ ] Optionally support Vault token input
 - [ ] Remove field for limiting the certificates
-- [ ] Implement loading indicators for async actions
-- [ ] Add links to the vault url on the data
+- [ ] Implement loading indicators for async actions, possibly progress updates
 - [ ] Implement pagination for certificate lists
 - [ ] Remove signature modal functionality
 - [ ] Prettify some UI elements like filter inputs and buttons
-- [ ] Options to hide expired or valid certificates
-
 
 ## Backend
 
@@ -97,3 +94,4 @@ python3 server.py --filetoken /path/to/tokenfile --environment uat
 
 - [ ] Remove or restrict `Access-Control-Allow-Origin: *` in production.
 - [ ] Optionally support Vault token input
+- [ ] Should the backend support a choice from the frontend about which PKI engine to use and maybe support multiple?

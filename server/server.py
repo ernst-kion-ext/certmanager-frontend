@@ -93,10 +93,19 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 certificateDetails = getCertificateDetails(certificate)
                 allCerts.append(certificateDetails)
 
+            metadata = { "pki_mount": configuration["pki_mount"],
+                          "vault_addr": configuration["vault_addr"]
+                        }
+
+            returnObject = {
+                "metadata": metadata,
+                "certificates": allCerts,
+            }
+
         self.send_response(200)
         self.send_header('Content-type', 'text/json')
         self.end_headers()
-        self.wfile.write(json.dumps(allCerts).encode('utf-8'))
+        self.wfile.write(json.dumps(returnObject).encode('utf-8'))
             
     def do_OPTIONS(self):
         self.send_response(200)

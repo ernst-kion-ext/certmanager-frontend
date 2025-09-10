@@ -73,6 +73,7 @@ const columns = [
     { key: "issuer", label: "Issuer" },
     { key: "status", label: "Status" },
     { key: "fingerprint", label: "Fingerprint" },
+    { key: "engine", label: "Engine" },
     { key: "signaturehashalgorithm", label: "Signature Hash Algorithm" },
     { key: "publickey_type", label: "Public Key Type" },
     { key: "publickey_size", label: "Public Key Size" },
@@ -93,8 +94,10 @@ async function fetchCertificates() {
     btn.textContent = "Loading...";
 
     try {
-        const certificates = await getServerCertificates();
-        processCertificateStatuses(certificates); // <-- Process statuses here
+        const data = await getServerCertificates();
+        window.metadata = data.metadata;
+        const certificates = data.certificates;
+        processCertificateStatuses(certificates);
         window.certificates = certificates;
         renderTable(getFilteredCertificates());
     } catch (error) {
@@ -123,16 +126,19 @@ function renderTable(data) {
         tbody.innerHTML = data.map((cert) => {
             // Row class for non-valid certificates (expired or revoked)
             const rowClass = (cert.status !== "valid") ? 'row-not-valid' : '';
+            // Careful, the order or columns matters and
+            // have to correspond to the index.html
             return `
             <tr class="${rowClass}">
-                <td>${cert.subject || cert.cn}</td>
+                <td>${getSubjectLink(cert)}</td>
                 <td>${cert.notvalidbefore}</td>
                 <td>${cert.notvalidafter}</td>
                 <td>${cert.daysleft}</td>
                 <td>${getKeyUsage(cert)}</td>
-                <td>${cert.issuer}</td>
+                <td>${getIssuerLink(cert)}</td>
                 <td>${cert.status}</td>
                 <td>${cert.fingerprint}</td>
+                <td>${getEngineLink()}</td>
                 <td>${cert.signaturehashalgorithm}</td>
                 <td>${cert.publickey?.type}</td>
                 <td>${cert.publickey?.size || cert.publickey?.key_size}</td>
@@ -395,4 +401,47 @@ function processCertificateStatuses(certificates) {
             }
         }
     });
+}
+
+function getSubjectLink(cert) {
+    // Get current server URL from the metadata
+
+    const serverValue = window.metadata.vault_addr;
+    const pki_mount = window.metadata.pki_mount;
+    const fingerprint = cert.fingerprint;
+    const subject = cert.subject || cert.cn;
+
+    if (subject && fingerprint) {
+        url = serverValue + 'ui/vault/secrets/' + pki_mount + '/pki/certificates/' + fingerprint + '/details';
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${subject}</a>`;
+    } else {
+        return subject;
+    }
+}
+
+function getEngineLink() {
+    const serverValue = window.metadata.vault_addr;
+    const pki_mount = window.metadata.pki_mount;
+
+    if (serverValue && pki_mount) {
+        url = serverValue + 'ui/vault/secrets/' + pki_mount + '/pki/overview';
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${pki_mount}</a>`;
+    } else {
+        return pki_mount;
+    }
+}
+
+function getIssuerLink(cert) {
+    const issuerSubject = cert.issuer;
+
+    // Search for a certificate with subject === issuer
+    const issuerCert = window.certificates.find(cert => cert.subject === issuerSubject);
+
+    if (issuerCert) {
+        return getSubjectLink(issuerCert);
+    } else {
+        // This can happen if we limit the certificates and not receive all of them
+        // so the issuer is maybe not within the current set
+        return issuerSubject;
+    }
 }
