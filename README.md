@@ -19,10 +19,23 @@ How to use:
 - Server selection (Production, UAT, Localhost)
 - API key authentication (required, sent via HTTP header)
 - Limit the number of certificates fetched (optional, via `certamount` header)
-- Global and per-column filtering/search
-- Sortable columns
-- Signature modal with copy-to-clipboard
-- Certificate statistics (issued/revoked) display
+- Provide certificate status: valid, expired, revoked
+- Advanced filtering capabilities:
+  - Global search across all fields
+  - Per-column filtering/search
+  - Specialized key usage filtering modal
+- Table customization:
+  - Sortable columns (ascending/descending)
+  - Column visibility toggles
+  - Status-based row highlighting
+- Various modals for detail views
+  - Signature Modal
+  - Public Key Modal
+  - Certificate Details Modal
+  - Key Usage Modal
+- Pagination system
+- Dynamic links to the vault
+- Statistics visualization
 - No external JS/CSS dependencies
 
 ### Security
@@ -32,13 +45,12 @@ How to use:
 
 ### TODO
 
-- [ ] Improve error handling and user feedback.
-- [ ] Optionally support Vault token input
+- [ ] Improve error handling and user feedback
+- [ ] Change ApiKey to vaulttoken
 - [ ] Remove field for limiting the certificates
 - [ ] Implement loading indicators for async actions, possibly progress updates
-- [ ] Implement pagination for certificate lists
 - [ ] Remove signature modal functionality
-- [ ] Prettify some UI elements like filter inputs and buttons
+- [ ] Prettify some UI elements like filter inputs and buttons and statistics
 
 ## Backend
 
@@ -60,7 +72,7 @@ The backend is implemented in Python and provides both CLI and HTTP server inter
 ### Server Arguments
 
 | Argument                | Description                                                                                          |
-|-||
+|-------------------------|------------------------------------------------------------------------------------------------------|
 | `-t`, `--token`         | Vault Token for authentication. Can also be supplied via the `VAULTTOKEN` environment variable.      |
 | `-f`, `--filetoken`     | Path to a file containing the Vault token.                                                           |
 | `-e`, `--environment`   | Vault environment to use (`prod`, `uat`, `localhost`). Default: `prod`.                             |
@@ -90,8 +102,58 @@ python3 server.py --filetoken /path/to/tokenfile --environment uat
 - The API key is stored in `server/apikey` (plaintext, do not commit secrets).
 - CORS headers are set to allow frontend access.
 
+### Certificate JSON Format
+
+The backend returns certificate data in the following JSON structure:
+
+```jsonc
+{
+  "metadata": {
+    "vault_addr": "<vault server URL>",
+    "pki_mount": "<PKI engine mount path>"
+  },
+  "certificates": [
+    {
+      "fingerprint": "<certificate fingerprint string>",
+      "notvalidbefore": "<start of validity period, e.g. 'Fri Aug 22 11:51:06 2025'>",
+      "notvalidafter": "<end of validity period, e.g. 'Fri Aug 29 11:51:36 2025'>",
+      "daysleft": <integer, days until expiration>,
+      "publickey": {
+        "pem": "<PEM-encoded public key>",
+        "ssh": "<SSH-formatted public key>",
+        "type": "<key type, e.g. 'RSA'>",
+        "key_size": <integer, key size in bits>,
+        "modulus_hex": "<hexadecimal modulus (for RSA keys)>",
+        "exponent": <integer, public exponent (for RSA keys)>
+      },
+      "issuer": "<issuer name string>",
+      "subject": "<subject name string>",
+      "signaturehashalgorithm": "<signature hash algorithm, e.g. 'SHA256'>",
+      "extensions": {
+        "extendedKeyUsage": [
+          "<usage1>",
+          "<usage2>"
+        ],
+        "subjectKeyIdentifier": "<subject key identifier string>",
+        "authorityKeyIdentifier": {
+          "key_identifier": "<authority key identifier string>",
+          "authority_cert_issuer": "<issuer info or null>",
+          "authority_cert_serial_number": "<serial number or null>"
+        },
+        "subjectAltName": [
+          "<subject alternative name 1>",
+          "<subject alternative name 2>"
+        ]
+      },
+      "signature": "<base64-encoded signature string>"
+    }
+    // ...more certificates
+  ]
+}
+```
+
 ### TODO
 
 - [ ] Remove or restrict `Access-Control-Allow-Origin: *` in production.
-- [ ] Optionally support Vault token input
+- [ ] Change ApiKey to vaulttoken
 - [ ] Should the backend support a choice from the frontend about which PKI engine to use and maybe support multiple?
