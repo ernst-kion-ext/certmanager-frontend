@@ -40,6 +40,8 @@ How to use:
 
 ### TODO
 
+- [ ] Add status: "about to exire"
+- [ ] Create "notification system" for about to expire certificates
 - [ ] Improve error handling and user feedback
   - [ ] Display user-friendly error messages
   - [ ] Highlight fields with errors
@@ -154,3 +156,4 @@ The backend returns certificate data in the following JSON structure:
 - [ ] Remove or restrict `Access-Control-Allow-Origin: *` in production.
 - [ ] Should the backend support a choice from the frontend about which PKI engine to use and maybe support multiple?
 - [ ] List all PKI engines and then get all their certificates
+- [ ] Adjust the role for the token creation in the vault for UAT to hand out
