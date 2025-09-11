@@ -11,13 +11,13 @@ This is a frontend website written in HTML, CSS, and vanilla JavaScript without 
 How to use:
 1. Run the Backend (see below).
 2. Open `index.html` in your browser.
-3. Choose a server, enter your API key, and (optionally) set a maximum number of certificates to fetch.
+3. Choose a server, enter your vault token, and (optionally) set a maximum number of certificates to fetch.
 4. Click "Submit" to load and view certificates.
 
 ### Features
 
 - Server selection (Production, UAT, Localhost)
-- API key authentication (required, sent via HTTP header)
+- Vault token authentication (required, sent via HTTP header)
 - Limit the number of certificates fetched (optional, via `certamount` header)
 - Provide certificate status: valid, expired, revoked
 - Advanced filtering capabilities:
@@ -38,19 +38,20 @@ How to use:
 - Statistics visualization
 - No external JS/CSS dependencies
 
-### Security
-
-- The backend requires an API key for all requests, sent via the `apikey` HTTP header.
-- The API key is stored in `server/apikey` (plaintext, do not commit secrets).
-
 ### TODO
 
 - [ ] Improve error handling and user feedback
-- [ ] Change ApiKey to vaulttoken
+  - [ ] Display user-friendly error messages
+  - [ ] Highlight fields with errors
+  - [ ] Show that no token has been entered
 - [ ] Remove field for limiting the certificates
 - [ ] Implement loading indicators for async actions, possibly progress updates
 - [ ] Remove signature modal functionality
-- [ ] Prettify some UI elements like filter inputs and buttons and statistics
+- [ ] Prettify some UI elements
+  - [ ] Filter inputs
+  - [ ] Buttons
+  - [ ] statistics page
+  - [ ] different browsers and sizes / responsive
 
 ## Backend
 
@@ -72,15 +73,13 @@ The backend is implemented in Python and provides both CLI and HTTP server inter
 ### Server Arguments
 
 | Argument                | Description                                                                                          |
-|-------------------------|------------------------------------------------------------------------------------------------------|
-| `-t`, `--token`         | Vault Token for authentication. Can also be supplied via the `VAULTTOKEN` environment variable.      |
-| `-f`, `--filetoken`     | Path to a file containing the Vault token.                                                           |
+|-------------------------|------------------------------------------------------------------------------------------------------|                                                       |
 | `-e`, `--environment`   | Vault environment to use (`prod`, `uat`, `localhost`). Default: `prod`.                             |
 
 Examples:
 ```bash
-python3 server.py -t <vault_token> -e prod
-python3 server.py --filetoken /path/to/tokenfile --environment uat
+python3 server.py -e prod
+python3 server.py --environment uat
 ```
 
 ### Patterns & Conventions
@@ -89,7 +88,6 @@ python3 server.py --filetoken /path/to/tokenfile --environment uat
 - Custom error handling and logging via `utilities.py`.
 - Certificate metadata extraction centralized in `certificate_details.py`.
 - Environment selection and key lists managed via `config.yml`.
-- API key must be specified in plaintext in a file called `apikey` in the `server` folder.
 
 ### External Dependencies
 
@@ -98,8 +96,7 @@ python3 server.py --filetoken /path/to/tokenfile --environment uat
 
 ### Security
 
-- The backend requires an API key for all requests, sent via the `apikey` HTTP header.
-- The API key is stored in `server/apikey` (plaintext, do not commit secrets).
+- The backend receives the `vaulttoken` from from the user input in the frontend 
 - CORS headers are set to allow frontend access.
 
 ### Certificate JSON Format
@@ -155,5 +152,5 @@ The backend returns certificate data in the following JSON structure:
 ### TODO
 
 - [ ] Remove or restrict `Access-Control-Allow-Origin: *` in production.
-- [ ] Change ApiKey to vaulttoken
 - [ ] Should the backend support a choice from the frontend about which PKI engine to use and maybe support multiple?
+- [ ] List all PKI engines and then get all their certificates

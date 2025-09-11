@@ -1,14 +1,14 @@
 async function getServerCertificates() {
 
     const url = document.getElementById('server-select').value;
-    let apiKey = document.getElementById('api-key-input').value;
+    let vaulttoken = document.getElementById('vaulttoken-input').value;
     let certAmount = document.getElementById('certamount-input').value;
 
     if (!url) throw new Error("No server selected");
-    if (!apiKey) throw new Error("No API key provided");
+    if (!vaulttoken) throw new Error("No Vault token provided");
 
     const headers = {};
-    if (apiKey) headers['apikey'] = apiKey;
+    if (vaulttoken) headers['X-Vault-Token'] = vaulttoken;
     if (certAmount) headers['certamount'] = certAmount;
 
     try {

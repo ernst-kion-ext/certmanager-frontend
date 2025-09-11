@@ -43,19 +43,19 @@ def getJSONData(verb, url, return_value=None, data=None, headers=None):
         log_print("Connection Timeout - trying again", TYPE_ERROR)
       else:
         log_print("Connection Timeout - too many tries - exiting", TYPE_ERROR)
-        exit(-1)
+        return
     except requests.exceptions.JSONDecodeError:
       log_print("Could not decode JSON response from URL {0}".format(url), TYPE_ERROR)
-      exit(-1)
+      return
     except Exception as e:
       log_print("Unexpected error occured", TYPE_ERROR)
       print(e)
-      exit(-1)
+      return
 
   if(response.status_code != 200):
     log_print("Could not get {0} from {1} - see error message below".format(return_value, url), TYPE_ERROR)
     print(response.text)
-    exit(-1)
+    return
 
   raw_json = response.json()
   val = None
