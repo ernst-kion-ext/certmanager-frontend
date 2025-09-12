@@ -173,14 +173,33 @@
   <!-- Statistics-View -->
   <div class="main-content" id="statistics-view" style="display:none;">
     <h2>Certificate Statistics</h2>
-
-    <div class="simple-bar-chart" id="simple-bar-chart">
-      <span id="total-certificates">0</span>
-      <span id="valid-certificates">0</span>
-      <span id="revoked-certificates">0</span>
-      <span id="expired-certificates">0</span>
+    <div class="statistics-panel">
+      <div class="chart-container">
+        <h3>Issuer Distribution</h3>
+        <div id="issuer-distribution-chart"></div>
+      </div>
+      <div class="chart-container">
+        <h3>Basic Certificate Counts</h3>
+        <div class="horizontal-bar-chart" id="simple-bar-chart"></div>
+      </div>
+      <div class="chart-container">
+        <h3>Certificate Hierarchy</h3>
+        <div id="certificate-hierarchy-chart"></div>
+        <div id="hierarchy-summary"></div>
+      </div>
+      <div class="chart-container">
+        <h3>Key Usage Breakdown</h3>
+        <div id="key-usage-chart"></div>
+      </div>
+      <div class="chart-container">
+        <h3>Expiration Timeline</h3>
+        <div id="expiration-timeline-chart"></div>
+      </div>
+      <div class="chart-container">
+        <h3>CA Certificate Statistics</h3>
+        <div id="ca-certificate-stats"></div>
+      </div>
     </div>
-
   </div>
 
   <!-- Signature Modal -->

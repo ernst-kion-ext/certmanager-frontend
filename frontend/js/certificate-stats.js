@@ -1,108 +1,140 @@
-const certificateStats = {
-    issuedCount: 0,
-    revokedCount: 0,
-    aboutToExpireCount: 0,
-
-    updateStats: function(certificates) {
-        this.issuedCount = certificates.filter(cert => cert.status === 'active').length;
-        this.revokedCount = certificates.filter(cert => cert.status === 'revoked').length;
-        this.aboutToExpireCount = certificates.filter(cert => cert.isAboutToExpire).length;
-    },
-
-    displayStats: function() {
-        const statsContainer = document.getElementById('certificate-stats');
-        statsContainer.innerHTML = `
-            <h3>Certificate Statistics</h3>
-            <p>Issued Certificates: ${this.issuedCount}</p>
-            <p>Revoked Certificates: ${this.revokedCount}</p>
-            <p>About to Expire: ${this.aboutToExpireCount}</p>
-        `;
-    }
-};
-
-
-function displayStatistics(certificates) {
-    const stats = calculateStatistics(certificates);
-    const statsContainer = document.getElementById('certificate-stats');
-    statsContainer.innerHTML = `Issued: ${stats.issued}, Revoked: ${stats.revoked}`;
-}
-
-function calculateStatistics(certificates) {
-    let issued = 0;
-    let revoked = 0;
-
-    certificates.forEach(cert => {
-        if (cert.status === 'active') {
-            issued++;
-        } else if (cert.status === 'revoked') {
-            revoked++;
-        }
-    });
-
-    return { issued, revoked };
-}
 
 function updateStatistics() {
     const certificates = window.certificates || [];
 
+    // 0. Basic Certificate Counts
     let totalCount = certificates.length;
-    let validCount = certificates.filter(cert =>
-        cert.status === 'valid'
-    ).length;
-    let revokedCount = certificates.filter(cert =>
-        cert.status === 'revoked'
-    ).length;
-    let expiredCount = certificates.filter(cert =>
-        cert.status === 'expired'
-    ).length;
-
-    document.getElementById('total-certificates').textContent = totalCount;
-    document.getElementById('valid-certificates').textContent = validCount;
-    document.getElementById('revoked-certificates').textContent = revokedCount;
-    document.getElementById('expired-certificates').textContent = expiredCount;
-
+    let validCount = certificates.filter(cert => cert.status === 'valid').length;
+    let revokedCount = certificates.filter(cert => cert.status === 'revoked').length;
+    let expiredCount = certificates.filter(cert => cert.status === 'expired').length;
     drawSimpleBarChart([
-        { label: 'Total', value: totalCount, color: '#3692eb' },
-        { label: 'Valid', value: validCount, color: '#4bc0c0' },
-        { label: 'Revoked', value: revokedCount, color: '#ff6384' },
-        { label: 'Expired', value: expiredCount, color: '#ff9f40' }
+        { label: 'Total', value: totalCount },
+        { label: 'Valid', value: validCount },
+        { label: 'Revoked', value: revokedCount },
+        { label: 'Expired', value: expiredCount }
     ]);
+
+    // 1. Issuer Distribution
+    const issuerCounts = {};
+    certificates.forEach(cert => {
+        const issuer = cert.issuer || 'Unknown';
+        issuerCounts[issuer] = (issuerCounts[issuer] || 0) + 1;
+    });
+    drawHorizontalBarChart('issuer-distribution-chart', issuerCounts, 'Issuer');
+
+    // 2. Certificate Hierarchy (Root, Intermediate, End-Entity)
+    let root = 0, intermediate = 0, endEntity = 0;
+    certificates.forEach(cert => {
+        const isCA = cert.extensions && cert.extensions.basicConstraints && cert.extensions.basicConstraints.ca;
+        const hasIssuer = cert.issuer && cert.subject && cert.issuer !== cert.subject;
+        if (isCA && !hasIssuer) root++;
+        else if (isCA && hasIssuer) intermediate++;
+        else endEntity++;
+    });
+    document.getElementById('hierarchy-summary').innerHTML =
+        `<p>Root: ${root}, Intermediate: ${intermediate}, End-Entity: ${endEntity}</p>`;
+
+    // 3. Key Usage Breakdown
+    const keyUsageTypes = [
+        'digital_signature', 'content_commitment', 'key_encipherment',
+        'data_encipherment', 'key_agreement', 'key_cert_sign', 'crl_sign'
+    ];
+    const keyUsageCounts = {};
+    keyUsageTypes.forEach(type => keyUsageCounts[type] = 0);
+    certificates.forEach(cert => {
+        const usage = cert.extensions && cert.extensions.keyUsage;
+        if (usage) {
+            keyUsageTypes.forEach(type => {
+                if (usage[type]) keyUsageCounts[type]++;
+            });
+        }
+    });
+    drawHorizontalBarChart('key-usage-chart', keyUsageCounts, 'Key Usage');
+
+    // 4. Expiration Timeline (by year-quarter)
+    const expirationTimeline = {};
+    certificates.forEach(cert => {
+        if (cert.notvalidafter) {
+            const date = new Date(cert.notvalidafter);
+            const year = date.getFullYear();
+            const quarter = Math.floor(date.getMonth() / 3) + 1;
+            const label = `${year}-Q${quarter}`;
+            expirationTimeline[label] = (expirationTimeline[label] || 0) + 1;
+        }
+    });
+    drawHorizontalBarChart('expiration-timeline-chart', expirationTimeline, 'Expiration');
+
+    // 5. CA Certificate Statistics
+    let caCount = 0, nonCaCount = 0;
+    certificates.forEach(cert => {
+        const isCA = cert.extensions && cert.extensions.basicConstraints && cert.extensions.basicConstraints.ca;
+        if (isCA) caCount++;
+        else nonCaCount++;
+    });
+    document.getElementById('ca-certificate-stats').innerHTML =
+        `<p>CA Certificates: ${caCount}<br>End-Entity Certificates: ${nonCaCount}</p>`;
+}
+
+function drawHorizontalBarChart(containerId, dataObj, labelPrefix) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    const entries = Object.entries(dataObj).filter(([k, v]) => v > 0);
+    if (entries.length === 0) {
+        container.innerHTML = '<em>No data</em>';
+        return;
+    }
+    const max = Math.max(...entries.map(([k, v]) => v));
+    // Sort by time (year-quarter)
+    if (containerId === 'expiration-timeline-chart') {
+        entries.sort((a, b) => {
+            const [ay, aq] = a[0].split('-Q').map(Number);
+            const [by, bq] = b[0].split('-Q').map(Number);
+            if (ay !== by) return ay - by;
+            return aq - bq;
+        });
+    } else {
+        entries.sort((a, b) => b[1] - a[1]);
+    }
+    entries.forEach(([key, value]) => {
+        const row = document.createElement('div');
+        row.className = 'horizontal-bar-row';
+        const label = document.createElement('span');
+        label.className = 'horizontal-bar-label';
+        label.textContent = `${key}`;
+        const bar = document.createElement('div');
+        bar.className = 'horizontal-bar';
+        bar.style.width = (value / max * 220) + 'px';
+        bar.title = `${value} ${labelPrefix}`;
+        const count = document.createElement('span');
+        count.className = 'horizontal-bar-count';
+        count.textContent = value;
+        row.appendChild(label);
+        row.appendChild(bar);
+        row.appendChild(count);
+        container.appendChild(row);
+    });
 }
 
 function drawSimpleBarChart(data) {
     const container = document.getElementById('simple-bar-chart');
     container.innerHTML = '';
-
     const max = Math.max(...data.map(d => d.value), 1);
-
-    // 60% of viewport height for the tallest bar
-    const maxBarHeight = Math.floor(window.innerHeight * 0.6);
-
-    const chartWrapper = document.createElement('div');
-    chartWrapper.className = 'vertical-bar-chart-wrapper';
-
     data.forEach(item => {
-        const barCol = document.createElement('div');
-        barCol.className = 'vertical-bar-col';
-
-        const bar = document.createElement('div');
-        bar.className = 'vertical-bar';
-        bar.style.height = (item.value / max * maxBarHeight) + 'px';
-        bar.style.background = item.color;
-
-        const value = document.createElement('div');
-        value.className = 'vertical-bar-value';
-        value.textContent = item.value;
-
-        const label = document.createElement('div');
-        label.className = 'vertical-bar-label';
+        const row = document.createElement('div');
+        row.className = 'horizontal-bar-row';
+        const label = document.createElement('span');
+        label.className = 'horizontal-bar-label';
         label.textContent = item.label;
-
-        barCol.appendChild(value);
-        barCol.appendChild(bar);
-        barCol.appendChild(label);
-        chartWrapper.appendChild(barCol);
+        const bar = document.createElement('div');
+        bar.className = 'horizontal-bar';
+        bar.style.width = (item.value / max * 220) + 'px';
+        bar.title = `${item.value} ${item.label}`;
+        const count = document.createElement('span');
+        count.className = 'horizontal-bar-count';
+        count.textContent = item.value;
+        row.appendChild(label);
+        row.appendChild(bar);
+        row.appendChild(count);
+        container.appendChild(row);
     });
-
-    container.appendChild(chartWrapper);
 }

@@ -52,7 +52,6 @@ How to use:
 - [ ] Prettify some UI elements
   - [ ] Filter inputs
   - [ ] Buttons
-  - [ ] statistics page
   - [ ] different browsers and sizes / responsive
 
 ## Backend
